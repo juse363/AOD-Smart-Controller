@@ -5,6 +5,7 @@ struct AODSmartControllerApp: App {
     @StateObject private var proximity = ProximityMonitor()
     @StateObject private var motion = MotionMonitor()
     @StateObject private var engine = AODDecisionEngine()
+    @StateObject private var systemInspector = SystemCapabilityInspector()
 
     var body: some Scene {
         WindowGroup {
@@ -12,6 +13,7 @@ struct AODSmartControllerApp: App {
                 .environmentObject(proximity)
                 .environmentObject(motion)
                 .environmentObject(engine)
+                .environmentObject(systemInspector)
                 .onAppear {
                     proximity.start()
                     motion.start()

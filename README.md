@@ -1,3 +1,9 @@
+# AOD Smart Controller 0.2.0 (development)
+
+0.2.0 adds read-only device capability diagnostics and an explicit system AOD integration boundary. See README-0.2.0.md for details.
+
+Previous prototype notes follow.
+
 # AOD Smart Controller 0.1.0
 
 中文界面的 iOS 传感器与 AOD 判断算法原型，目标设备为 iPhone 13 Pro Max。

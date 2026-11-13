@@ -1,9 +1,15 @@
-
 name: Build AOD Smart Controller IPA
 
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
+      - feature/aod-0.2.0
+      - feature/aod-0.2.1
+      - feature/aod-0.2.2
+      - feature/aod-0.3.0-ui
+  pull_request:
     branches:
       - main
 
@@ -41,5 +47,5 @@ jobs:
       - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
-          name: AODSmartController-IPA
+          name: AODSmartController-0.3.0-unsigned-IPA
           path: AODSmartController-unsigned.ipa
