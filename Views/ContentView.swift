@@ -5,6 +5,7 @@ struct ContentView: View {
     @EnvironmentObject private var motion: MotionMonitor
     @EnvironmentObject private var engine: AODDecisionEngine
     @EnvironmentObject private var systemInspector: SystemCapabilityInspector
+    @StateObject private var appGroupDiagnostics = AppGroupDiagnostics()
 
     var body: some View {
         NavigationStack {
@@ -12,6 +13,7 @@ struct ContentView: View {
                 VStack(spacing: 16) {
                     header
                     capabilityCard
+                    appGroupCard
                     stateCard
                     sensorCard
                     algorithmCard
@@ -32,18 +34,17 @@ struct ContentView: View {
                 Text("智能息屏控制中心")
                     .font(.title2.bold())
                 Spacer()
-                Text("0.2.0")
+                Text("0.2.1")
                     .font(.caption.weight(.semibold))
                     .padding(.horizontal, 9).padding(.vertical, 5)
                     .background(.blue.opacity(0.2), in: Capsule())
             }
-            Text("iPhone 13 Pro Max · 传感器与算法原型")
+            Text("iPhone 13 Pro Max · 签名与权限诊断")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
-
 
     private var capabilityCard: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -55,6 +56,31 @@ struct ContentView: View {
             sensorRow("原生 AOD 控制", value: systemInspector.aodControlStatus)
             Text("本版只做只读诊断；不修改 MobileGestalt，也不会把能力标记伪装成硬件升级。")
                 .font(.caption)
+                .foregroundStyle(.orange)
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 18))
+    }
+
+    private var appGroupCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Label("签名与 App Group 检测", systemImage: "checkmark.shield")
+                .font(.headline)
+            sensorRow("待检测 Group ID", value: appGroupDiagnostics.groupIdentifier)
+            sensorRow("检测结果", value: appGroupDiagnostics.status)
+            Text(appGroupDiagnostics.detail)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Button {
+                appGroupDiagnostics.runCheck()
+            } label: {
+                Label("检测 App Group 容器", systemImage: "arrow.clockwise")
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+            Text("检测只会在应用自己的 App Group 容器内创建并删除临时测试文件，不会改动系统配置。")
+                .font(.caption2)
                 .foregroundStyle(.orange)
         }
         .padding()
@@ -136,7 +162,7 @@ struct ContentView: View {
         VStack(alignment: .leading, spacing: 8) {
             Label("重要限制", systemImage: "info.circle")
                 .font(.headline)
-            Text("普通 IPA 没有公开 API 可以关闭 iOS 系统 AOD。环境光滑块仅用于验证算法，不是实际 lux 读数。传感器监听也不能保证在应用进入后台或锁屏后持续运行。")
+            Text("普通 IPA 没有公开 API 可以关闭 iOS 系统 AOD。环境光滑块仅用于验证算法，不是实际 lux 读数。传感器监听也不能保证在应用进入后台或锁屏后持续运行。App Group 检测成功也只证明共享容器可用，不代表已经获得 MobileGestalt 或 SpringBoard 权限。")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
         }
