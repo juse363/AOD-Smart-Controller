@@ -56,4 +56,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: NEXUS-0.4.2-unsigned-IPA
-          path: NEXUS-0.4.1-unsigned.ipa
+          path: NEXUS-0.4.2-unsigned.ipa
