@@ -4,6 +4,13 @@
 
 NEXUS is evolving from an AOD-focused prototype into a modular iPhone workspace for device diagnostics, sensor insights, system utilities, and future personalization tools.
 
+## Project identity
+
+- Xcode project: `NEXUS.xcodeproj`
+- Xcode target and scheme: `NEXUS`
+- iOS app display name: `NEXUS`
+- Bundle identifier intentionally retained: `com.aodsmart.controller`
+
 ## 0.4.0 — Brand refresh
 
 - New product identity: **NEXUS · 灵枢工作台**
