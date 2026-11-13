@@ -15,8 +15,14 @@ targets:
     sources:
       - path: .
         excludes:
+          - .git
+          - .git/**
           - .github
+          - .github/**
+          - build
+          - build/**
           - README.md
+          - README-0.2.0.md
           - project.yml
     settings:
       base:
