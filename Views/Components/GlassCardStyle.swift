@@ -10,7 +10,6 @@ struct GlassCardStyle: ViewModifier {
         Group {
             if #available(iOS 26.0, *) {
                 content
-                    .background(.ultraThinMaterial.opacity(0.42), in: shape)
                     .overlay {
                         shape.strokeBorder(.white.opacity(0.14), lineWidth: 1)
                     }
