@@ -15,8 +15,9 @@ final class SystemCapabilityInspector: ObservableObject {
     init() {
         var info = utsname()
         uname(&info)
+        let machineCapacity = MemoryLayout.size(ofValue: info.machine)
         let machine = withUnsafePointer(to: &info.machine) {
-            $0.withMemoryRebound(to: CChar.self, capacity: MemoryLayout.size(ofValue: info.machine)) {
+            $0.withMemoryRebound(to: CChar.self, capacity: machineCapacity) {
                 String(cString: $0)
             }
         }
