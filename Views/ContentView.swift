@@ -205,8 +205,7 @@ struct ContentView: View {
                         .font(.system(size: 9, weight: .bold, design: .rounded))
                         .tracking(1.6)
                         .foregroundStyle(.cyan.opacity(0.9))
-                    Text("让设备状态
-尽在掌握")
+                    Text("让设备状态\n尽在掌握")
                         .font(.system(size: 25, weight: .bold, design: .rounded))
                         .lineSpacing(1)
                         .foregroundStyle(.white)
