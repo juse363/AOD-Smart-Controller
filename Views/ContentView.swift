@@ -160,7 +160,8 @@ struct ContentView: View {
     private var appGroupCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             cardHeading("签名与权限", subtitle: "实际签名与 App Group 诊断", icon: "checkmark.shield")
-            infoRow("签名 Entitlements", appGroupDiagnostics.entitlementStatus)\n            infoRow("实际 Group IDs", appGroupDiagnostics.groupIdentifiersText)
+            infoRow("签名 Entitlements", appGroupDiagnostics.entitlementStatus)
+            infoRow("实际 Group IDs", appGroupDiagnostics.groupIdentifiersText)
             infoRow("检测状态", appGroupDiagnostics.status)
             infoRow("容器", appGroupDiagnostics.containerStatus)
             infoRow("文件读写", appGroupDiagnostics.fileTestStatus)
