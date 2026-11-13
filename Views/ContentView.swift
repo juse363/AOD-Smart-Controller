@@ -4,12 +4,14 @@ struct ContentView: View {
     @EnvironmentObject private var proximity: ProximityMonitor
     @EnvironmentObject private var motion: MotionMonitor
     @EnvironmentObject private var engine: AODDecisionEngine
+    @EnvironmentObject private var systemInspector: SystemCapabilityInspector
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
                     header
+                    capabilityCard
                     stateCard
                     sensorCard
                     algorithmCard
@@ -30,7 +32,7 @@ struct ContentView: View {
                 Text("智能息屏控制中心")
                     .font(.title2.bold())
                 Spacer()
-                Text("0.1.0")
+                Text("0.2.0")
                     .font(.caption.weight(.semibold))
                     .padding(.horizontal, 9).padding(.vertical, 5)
                     .background(.blue.opacity(0.2), in: Capsule())
@@ -40,6 +42,24 @@ struct ContentView: View {
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+
+    private var capabilityCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Label("系统能力与联动诊断", systemImage: "cpu")
+                .font(.headline)
+            sensorRow("设备标识", value: systemInspector.deviceIdentifier)
+            sensorRow("iOS 版本", value: systemInspector.systemVersion)
+            sensorRow("设备能力", value: systemInspector.summary)
+            sensorRow("原生 AOD 控制", value: systemInspector.aodControlStatus)
+            Text("本版只做只读诊断；不修改 MobileGestalt，也不会把能力标记伪装成硬件升级。")
+                .font(.caption)
+                .foregroundStyle(.orange)
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(uiColor: .secondarySystemGroupedBackground), in: RoundedRectangle(cornerRadius: 18))
     }
 
     private var stateCard: some View {
