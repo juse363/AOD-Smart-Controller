@@ -28,30 +28,69 @@ struct ContentView: View {
     @State private var ambientMotion = false
 
     var body: some View {
-        ZStack {
-            atmosphericBackground
+        TabView(selection: $selectedTab) {
+            navigationPage(title: "NEXUS") {
+                overviewContent
+            }
+            .tabItem { Label("总览", systemImage: "square.grid.2x2") }
+            .tag(DashboardTab.overview)
 
-            VStack(spacing: 0) {
-                topBar
+            navigationPage(title: "传感器") {
+                sensorCard
+            }
+            .tabItem { Label("传感", systemImage: "sensor") }
+            .tag(DashboardTab.sensors)
 
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 13) {
-                        selectedContent
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.top, 8)
-                    .padding(.bottom, 18)
-                    .frame(maxWidth: 760)
-                    .frame(maxWidth: .infinity)
+            navigationPage(title: "实验室") {
+                algorithmCard
+            }
+            .tabItem { Label("实验室", systemImage: "slider.horizontal.3") }
+            .tag(DashboardTab.laboratory)
+
+            navigationPage(title: "系统") {
+                VStack(spacing: 12) {
+                    appGroupCard
+                    capabilityCard
+                    futureFeaturesCard
+                    limitationCard
                 }
             }
+            .tabItem { Label("系统", systemImage: "gearshape") }
+            .tag(DashboardTab.system)
         }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            bottomNavigation
-        }
+        .tint(.cyan)
+        .toolbarBackground(.visible, for: .tabBar)
+        .toolbarBackground(.ultraThinMaterial, for: .tabBar)
+        .background(atmosphericBackground)
         .preferredColorScheme(.dark)
         .onAppear {
             ambientMotion = true
+        }
+    }
+
+    @ViewBuilder
+    private func navigationPage<Content: View>(
+        title: String,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        NavigationStack {
+            ScrollView(showsIndicators: false) {
+                content()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 12)
+                    .padding(.top, 8)
+                    .padding(.bottom, 24)
+            }
+            .background(Color.clear)
+            .navigationTitle(title)
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Text("0.4.4")
+                        .font(.caption2.weight(.semibold).monospaced())
+                        .foregroundStyle(.secondary)
+                }
+            }
         }
     }
 
