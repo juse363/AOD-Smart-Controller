@@ -1,0 +1,27 @@
+import SwiftUI
+
+@main
+struct AODSmartControllerApp: App {
+    @StateObject private var proximity = ProximityMonitor()
+    @StateObject private var motion = MotionMonitor()
+    @StateObject private var engine = AODDecisionEngine()
+
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+                .environmentObject(proximity)
+                .environmentObject(motion)
+                .environmentObject(engine)
+                .onAppear {
+                    proximity.start()
+                    motion.start()
+                }
+                .onChange(of: proximity.isCovered) { _, value in
+                    engine.update(proximityCovered: value)
+                }
+                .onChange(of: motion.isFaceDown) { _, value in
+                    engine.update(faceDown: value)
+                }
+        }
+    }
+}
