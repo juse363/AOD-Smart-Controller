@@ -23,6 +23,8 @@ targets:
           - build/**
           - README.md
           - README-0.2.0.md
+          - README-0.2.2.md
+          - README-0.3.0.md
           - project.yml
     settings:
       base:
