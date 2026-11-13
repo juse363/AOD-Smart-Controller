@@ -74,23 +74,81 @@ struct ContentView: View {
         @ViewBuilder content: () -> Content
     ) -> some View {
         NavigationStack {
-            ScrollView(showsIndicators: false) {
-                content()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 12)
-                    .padding(.top, 8)
-                    .padding(.bottom, 24)
+            VStack(spacing: 0) {
+                pageHeader(title: title)
+
+                ScrollView(showsIndicators: false) {
+                    content()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 16)
+                        .padding(.top, 7)
+                        .padding(.bottom, 28)
+                }
+                .scrollBounceBehavior(.basedOnSize)
             }
             .background(Color.clear)
-            .navigationTitle(title)
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Text("0.4.4")
-                        .font(.caption2.weight(.semibold).monospaced())
-                        .foregroundStyle(.secondary)
-                }
+            .toolbar(.hidden, for: .navigationBar)
+        }
+    }
+
+    private func pageHeader(title: String) -> some View {
+        HStack(spacing: 11) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 13, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [.cyan.opacity(0.88), .blue.opacity(0.72), .purple.opacity(0.68)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                Image(systemName: "point.3.connected.trianglepath.dotted")
+                    .font(.system(size: 19, weight: .semibold))
+                    .foregroundStyle(.white)
             }
+            .frame(width: 39, height: 39)
+            .overlay {
+                RoundedRectangle(cornerRadius: 13, style: .continuous)
+                    .strokeBorder(.white.opacity(0.24), lineWidth: 0.8)
+            }
+            .shadow(color: .cyan.opacity(0.18), radius: 9, y: 3)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.system(size: 19, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+                Text("NEXUS · 灵枢工作台")
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundStyle(.white.opacity(0.48))
+            }
+
+            Spacer(minLength: 8)
+
+            VStack(alignment: .trailing, spacing: 3) {
+                Text("0.4.4")
+                    .font(.system(size: 11, weight: .bold, design: .rounded).monospaced())
+                    .foregroundStyle(.white.opacity(0.9))
+                Text("BUILD 12")
+                    .font(.system(size: 8, weight: .semibold, design: .rounded).monospaced())
+                    .tracking(0.5)
+                    .foregroundStyle(.cyan.opacity(0.9))
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 7)
+            .background(.ultraThinMaterial, in: Capsule())
+            .overlay(Capsule().strokeBorder(.white.opacity(0.14), lineWidth: 0.8))
+        }
+        .padding(.horizontal, 18)
+        .padding(.top, 7)
+        .padding(.bottom, 10)
+        .background {
+            Rectangle()
+                .fill(.ultraThinMaterial.opacity(0.42))
+                .overlay(alignment: .bottom) {
+                    Rectangle().fill(.white.opacity(0.07)).frame(height: 0.5)
+                }
+                .ignoresSafeArea(edges: .top)
         }
     }
 
@@ -152,7 +210,7 @@ struct ContentView: View {
 
             HStack(spacing: 5) {
                 Circle().fill(.green).frame(width: 6, height: 6)
-                Text("BUILD 11")
+                Text("BUILD 12")
                     .font(.system(size: 9, weight: .bold, design: .rounded).monospaced())
                     .tracking(0.6)
             }
