@@ -55,7 +55,7 @@ struct ContentView: View {
                     }
                 }
             }
-            .navigationTitle("AOD Smart Controller")
+            .navigationTitle("NEXUS")
             .navigationBarTitleDisplayMode(.inline)
         }
         .preferredColorScheme(.dark)
@@ -65,16 +65,16 @@ struct ContentView: View {
         VStack(alignment: .leading, spacing: 14) {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("智能息屏控制中心")
+                    Text("NEXUS 灵枢工作台")
                         .font(.system(.largeTitle, design: .rounded, weight: .bold))
                         .minimumScaleFactor(0.78)
                         .lineLimit(1)
-                    Text("传感器 · 系统诊断 · 智能场景")
+                    Text("连接 · 智能 · 掌控未来")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
                 Spacer(minLength: 8)
-                Text("0.3.0")
+                Text("0.4.0")
                     .font(.caption.weight(.bold))
                     .monospacedDigit()
                     .padding(.horizontal, 12)

@@ -1,4 +1,4 @@
-name: Build AOD Smart Controller IPA
+name: Build NEXUS Workspace IPA
 
 on:
   workflow_dispatch:
@@ -9,6 +9,7 @@ on:
       - feature/aod-0.2.1
       - feature/aod-0.2.2
       - feature/aod-0.3.0-ui
+      - feature/nexus-0.4.0-branding
   pull_request:
     branches:
       - main
@@ -21,8 +22,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install XcodeGen
-        run: brew install xcodegen
+      - name: Install build tools
+        run: brew install xcodegen librsvg
+
+      - name: Render NEXUS app icon
+        run: |
+          mkdir -p Assets.xcassets/AppIcon.appiconset
+          rsvg-convert -w 1024 -h 1024 Branding/NEXUS-AppIcon.svg \
+            -o Assets.xcassets/AppIcon.appiconset/AppIcon.png
 
       - name: Generate Xcode project
         run: xcodegen generate
@@ -41,11 +48,11 @@ jobs:
       - name: Package IPA
         run: |
           mkdir -p Payload
-          cp -R build/Build/Products/Release-iphoneos/AODSmartController.app Payload/
-          zip -r AODSmartController-unsigned.ipa Payload
+          cp -R build/Build/Products/Release-iphoneos/NEXUS.app Payload/
+          zip -r NEXUS-unsigned.ipa Payload
 
       - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
-          name: AODSmartController-0.3.0-unsigned-IPA
-          path: AODSmartController-unsigned.ipa
+          name: NEXUS-0.4.0-unsigned-IPA
+          path: NEXUS-unsigned.ipa
