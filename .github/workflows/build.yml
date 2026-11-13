@@ -10,7 +10,8 @@ on:
       - feature/aod-0.2.2
       - feature/aod-0.3.0-ui
       - feature/nexus-0.4.0-branding
-      - feature/nexus-0.4.1-battery-center\n      - feature/nexus-0.4.2-entitlement-diagnostics
+      - feature/nexus-0.4.1-battery-center
+      - feature/nexus-0.4.2-entitlement-diagnostics
   pull_request:
     branches:
       - main
