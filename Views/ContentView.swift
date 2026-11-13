@@ -152,7 +152,7 @@ struct ContentView: View {
 
             HStack(spacing: 5) {
                 Circle().fill(.green).frame(width: 6, height: 6)
-                Text("BUILD 10")
+                Text("BUILD 11")
                     .font(.system(size: 9, weight: .bold, design: .rounded).monospaced())
                     .tracking(0.6)
             }
