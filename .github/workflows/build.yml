@@ -10,6 +10,7 @@ on:
       - feature/aod-0.2.2
       - feature/aod-0.3.0-ui
       - feature/nexus-0.4.0-branding
+      - feature/nexus-0.4.1-battery-center
   pull_request:
     branches:
       - main
@@ -49,10 +50,10 @@ jobs:
         run: |
           mkdir -p Payload
           cp -R build/Build/Products/Release-iphoneos/NEXUS.app Payload/
-          zip -r NEXUS-unsigned.ipa Payload
+          zip -r NEXUS-0.4.1-unsigned.ipa Payload
 
       - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
-          name: NEXUS-0.4.0-unsigned-IPA
-          path: NEXUS-unsigned.ipa
+          name: NEXUS-0.4.1-unsigned-IPA
+          path: NEXUS-0.4.1-unsigned.ipa
