@@ -28,8 +28,8 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.aodsmart.controller
         INFOPLIST_KEY_CFBundleDisplayName: "AOD Smart"
-        INFOPLIST_KEY_CFBundleShortVersionString: "0.2.0"
-        INFOPLIST_KEY_CFBundleVersion: "2"
+        INFOPLIST_KEY_CFBundleShortVersionString: "0.2.2"
+        INFOPLIST_KEY_CFBundleVersion: "4"
         INFOPLIST_KEY_NSMotionUsageDescription: "用于判断手机是否屏幕朝下。"
         INFOPLIST_KEY_UIUserInterfaceStyle: Dark
         CODE_SIGN_STYLE: Manual
