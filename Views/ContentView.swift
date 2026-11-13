@@ -34,7 +34,7 @@ struct ContentView: View {
                 Text("智能息屏控制中心")
                     .font(.title2.bold())
                 Spacer()
-                Text("0.2.1")
+                Text("0.2.2")
                     .font(.caption.weight(.semibold))
                     .padding(.horizontal, 9).padding(.vertical, 5)
                     .background(.blue.opacity(0.2), in: Capsule())
@@ -68,18 +68,29 @@ struct ContentView: View {
             Label("签名与 App Group 检测", systemImage: "checkmark.shield")
                 .font(.headline)
             sensorRow("待检测 Group ID", value: appGroupDiagnostics.groupIdentifier)
-            sensorRow("检测结果", value: appGroupDiagnostics.status)
+            sensorRow("按钮触发后的状态", value: appGroupDiagnostics.status)
+            sensorRow("容器检查", value: appGroupDiagnostics.containerStatus)
+            sensorRow("文件读写测试", value: appGroupDiagnostics.fileTestStatus)
+            sensorRow("最近检测时间", value: appGroupDiagnostics.lastChecked)
             Text(appGroupDiagnostics.detail)
                 .font(.caption)
                 .foregroundStyle(.secondary)
             Button {
                 appGroupDiagnostics.runCheck()
             } label: {
-                Label("检测 App Group 容器", systemImage: "arrow.clockwise")
-                    .frame(maxWidth: .infinity)
+                HStack {
+                    if appGroupDiagnostics.isChecking {
+                        ProgressView().tint(.white)
+                    } else {
+                        Image(systemName: "arrow.clockwise")
+                    }
+                    Text(appGroupDiagnostics.isChecking ? "正在检测…" : "重新检测 App Group")
+                }
+                .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
-            Text("检测只会在应用自己的 App Group 容器内创建并删除临时测试文件，不会改动系统配置。")
+            .disabled(appGroupDiagnostics.isChecking)
+            Text("检测仅在应用自己的 App Group 容器内创建并删除临时文件，不会修改系统配置。Group ID 必须与签名授权完全一致。")
                 .font(.caption2)
                 .foregroundStyle(.orange)
         }
