@@ -1,4 +1,4 @@
-name: AODSmartController
+name: NEXUS
 options:
   bundleIdPrefix: com.aodsmart
   deploymentTarget:
@@ -9,7 +9,7 @@ settings:
     TARGETED_DEVICE_FAMILY: "1"
     GENERATE_INFOPLIST_FILE: YES
 targets:
-  AODSmartController:
+  NEXUS:
     type: application
     platform: iOS
     sources:
