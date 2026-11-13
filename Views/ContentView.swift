@@ -6,7 +6,6 @@ struct ContentView: View {
     @EnvironmentObject private var engine: AODDecisionEngine
     @EnvironmentObject private var systemInspector: SystemCapabilityInspector
     @StateObject private var appGroupDiagnostics = AppGroupDiagnostics()
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     private let maxContentWidth: CGFloat = 1120
 
