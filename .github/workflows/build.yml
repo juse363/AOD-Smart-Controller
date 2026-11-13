@@ -1,4 +1,3 @@
-
 name: Build AOD Smart Controller IPA
 
 on:
@@ -7,6 +6,7 @@ on:
     branches:
       - main
       - feature/aod-0.2.0
+      - feature/aod-0.2.1
 
 jobs:
   build:
@@ -42,5 +42,5 @@ jobs:
       - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
-          name: AODSmartController-IPA
+          name: AODSmartController-0.2.1-unsigned-IPA
           path: AODSmartController-unsigned.ipa
