@@ -10,6 +10,9 @@ on:
       - feature/aod-0.2.2
       - feature/aod-0.3.0-ui
       - feature/nexus-0.4.0-branding
+      - feature/nexus-0.4.1-battery-center
+      - feature/nexus-0.4.2-entitlement-diagnostics
+      - feature/nexus-0.4.3-dashboard-redesign
   pull_request:
     branches:
       - main
@@ -34,6 +37,12 @@ jobs:
       - name: Generate Xcode project
         run: xcodegen generate
 
+      - name: Read app version
+        id: app_version
+        run: |
+          VERSION=$(grep 'MARKETING_VERSION:' project.yml | cut -d '"' -f 2)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
       - name: Build unsigned app
         run: |
           xcodebuild \
@@ -46,13 +55,16 @@ jobs:
             build
 
       - name: Package IPA
+        env:
+          APP_VERSION: ${{ steps.app_version.outputs.version }}
         run: |
           mkdir -p Payload
           cp -R build/Build/Products/Release-iphoneos/NEXUS.app Payload/
-          zip -r NEXUS-unsigned.ipa Payload
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $APP_VERSION" Payload/NEXUS.app/Info.plist
+          zip -r "NEXUS-$APP_VERSION-unsigned.ipa" Payload
 
       - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
-          name: NEXUS-0.4.0-unsigned-IPA
-          path: NEXUS-unsigned.ipa
+          name: NEXUS-${{ steps.app_version.outputs.version }}-unsigned-IPA
+          path: NEXUS-${{ steps.app_version.outputs.version }}-unsigned.ipa
