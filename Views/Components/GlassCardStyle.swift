@@ -1,32 +1,19 @@
 import SwiftUI
 
-/// Shared visual surface for feature cards.
-/// Uses native Liquid Glass on supported systems and a material fallback on older iOS.
+/// GitHub-inspired neutral surface: compact radius, subtle border and no decorative glow.
 struct GlassCardStyle: ViewModifier {
-    var cornerRadius: CGFloat = 24
+    var cornerRadius: CGFloat = 12
 
     func body(content: Content) -> some View {
         let shape = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-        Group {
-            if #available(iOS 26.0, *) {
-                content
-                    .overlay {
-                        shape.strokeBorder(.white.opacity(0.14), lineWidth: 1)
-                    }
-                    .glassEffect(.regular, in: shape)
-            } else {
-                content
-                    .background(.ultraThinMaterial, in: shape)
-                    .overlay {
-                        shape.strokeBorder(.white.opacity(0.12), lineWidth: 1)
-                    }
-            }
-        }
+        content
+            .background(Color(red: 0.075, green: 0.09, blue: 0.12), in: shape)
+            .overlay { shape.strokeBorder(Color.white.opacity(0.10), lineWidth: 1) }
     }
 }
 
 extension View {
-    func glassCard(cornerRadius: CGFloat = 24) -> some View {
+    func glassCard(cornerRadius: CGFloat = 12) -> some View {
         modifier(GlassCardStyle(cornerRadius: cornerRadius))
     }
 }
