@@ -128,10 +128,10 @@ struct ContentView: View {
             Spacer(minLength: 8)
 
             VStack(alignment: .trailing, spacing: 3) {
-                Text("0.4.7")
+                Text("0.4.8")
                     .font(.system(size: 11, weight: .bold, design: .rounded).monospaced())
                     .foregroundStyle(.white.opacity(0.9))
-                Text("BUILD 15")
+                Text("BUILD 16")
                     .font(.system(size: 8, weight: .semibold, design: .rounded).monospaced())
                     .tracking(0.5)
                     .foregroundStyle(.cyan.opacity(0.9))
@@ -762,7 +762,7 @@ struct ContentView: View {
         HStack(spacing: 5) {
             ForEach(DashboardTab.allCases) { tab in
                 Button {
-                    withAnimation(.spring(response: 0.34, dampingFraction: 0.78)) {
+                    withAnimation(.spring(response: 0.36, dampingFraction: 0.72)) {
                         selectedTab = tab
                     }
                 } label: {
@@ -773,15 +773,23 @@ struct ContentView: View {
                         Text(tab.rawValue)
                             .font(.system(size: 10, weight: .semibold))
                     }
-                    .foregroundStyle(selectedTab == tab ? .cyan : .white.opacity(0.48))
+                    .foregroundStyle(selectedTab == tab ? .cyan : .white.opacity(0.58))
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 9)
+                    .padding(.vertical, 10)
                     .background {
                         if selectedTab == tab {
                             RoundedRectangle(cornerRadius: 15, style: .continuous)
-                                .fill(.cyan.opacity(0.12))
-                                .overlay(RoundedRectangle(cornerRadius: 15, style: .continuous)
-                                    .strokeBorder(.cyan.opacity(0.18)))
+                                .fill(
+                                    LinearGradient(
+                                        colors: [.cyan.opacity(0.20), .blue.opacity(0.10)],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .overlay {
+                                    RoundedRectangle(cornerRadius: 15, style: .continuous)
+                                        .strokeBorder(.white.opacity(0.16), lineWidth: 0.7)
+                                }
                         }
                     }
                     .contentShape(Rectangle())
@@ -789,15 +797,58 @@ struct ContentView: View {
                 .buttonStyle(.plain)
             }
         }
-        .padding(.horizontal, 12)
-        .padding(.top, 8)
-        .padding(.bottom, 14)
+        .padding(.horizontal, 11)
+        .padding(.vertical, 8)
+        .frame(maxWidth: 390)
         .background {
-            Rectangle()
+            Capsule()
                 .fill(.ultraThinMaterial)
-                .ignoresSafeArea(edges: .bottom)
+                .overlay {
+                    Capsule()
+                        .fill(
+                            LinearGradient(
+                                colors: [.white.opacity(0.15), .white.opacity(0.035), .cyan.opacity(0.045)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                }
+                .overlay(alignment: .top) {
+                    Capsule()
+                        .strokeBorder(
+                            LinearGradient(
+                                colors: [.white.opacity(0.42), .white.opacity(0.10), .white.opacity(0.22)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 0.9
+                        )
+                }
+                .overlay {
+                    Capsule()
+                        .strokeBorder(.cyan.opacity(0.09), lineWidth: 1)
+                        .padding(2)
+                }
+                .shadow(color: .black.opacity(0.30), radius: 22, y: 9)
+                .shadow(color: .cyan.opacity(0.10), radius: 14, y: 0)
         }
-        .overlay(alignment: .top) { Rectangle().fill(.white.opacity(0.08)).frame(height: 0.5) }
+        .overlay(alignment: .top) {
+            Capsule()
+                .fill(
+                    LinearGradient(
+                        colors: [.white.opacity(0.34), .white.opacity(0.04), .clear],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+                .frame(height: 1)
+                .padding(.horizontal, 28)
+                .padding(.top, 1)
+                .allowsHitTesting(false)
+        }
+        .padding(.horizontal, 18)
+        .padding(.bottom, 12)
+        .frame(maxWidth: .infinity)
     }
 
     private var capabilityCard: some View {
