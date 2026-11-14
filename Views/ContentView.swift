@@ -32,6 +32,10 @@ struct ContentView: View {
     @State private var showLogoutInfo = false
     @State private var batteryLevel: Float = UIDevice.current.batteryLevel
     @State private var selectedWallpaperScene = 0
+    @State private var wallpaperPulse = false
+    @State private var cacheBytes: Int64 = 0
+    @State private var cacheClearResult = "尚未清理"
+    @State private var showCacheClearConfirmation = false
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -265,6 +269,24 @@ struct ContentView: View {
             .padding(18)
             .frame(maxWidth: .infinity, alignment: .leading)
             .glassCard()
+
+            VStack(alignment: .leading, spacing: 13) {
+                sectionIntro("设备工具", detail: "辅助功能独立运行，不影响 AOD 与灵动岛研发", symbol: "wrench.and.screwdriver")
+                NavigationLink { batteryDetailView } label: {
+                    featureNavigationRow(title: "电池检测", detail: "实时电量、充电状态与设备续航参考", symbol: "battery.100percent", tint: .green, status: "可用")
+                }.buttonStyle(.plain)
+                Divider().overlay(.white.opacity(0.10))
+                NavigationLink { wallpaperDetailView } label: {
+                    featureNavigationRow(title: "动态交互壁纸", detail: "应用内动态场景、触控与主题切换", symbol: "sparkles.rectangle.stack", tint: .pink, status: "实验")
+                }.buttonStyle(.plain)
+                Divider().overlay(.white.opacity(0.10))
+                NavigationLink { cacheCleanerDetailView } label: {
+                    featureNavigationRow(title: "清理设备缓存", detail: "查看并清理 NEXUS 自身缓存文件", symbol: "internaldrive", tint: .orange, status: "应用级")
+                }.buttonStyle(.plain)
+            }
+            .padding(18)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .glassCard()
         }
         .frame(maxWidth: .infinity, alignment: .top)
     }
@@ -414,13 +436,27 @@ struct ContentView: View {
                     LinearGradient(colors: palettes[selectedWallpaperScene % palettes.count], startPoint: .topLeading, endPoint: .bottomTrailing)
                     Circle().fill(.white.opacity(0.18)).frame(width: 145, height: 145).blur(radius: 34).offset(x: 78, y: -52)
                     Circle().stroke(.white.opacity(0.25), lineWidth: 1).frame(width: 190, height: 190)
+                        .rotationEffect(.degrees(wallpaperPulse ? 28 : -28))
                     Circle().stroke(.white.opacity(0.13), lineWidth: 1).frame(width: 145, height: 145)
+                        .scaleEffect(wallpaperPulse ? 1.12 : 0.88)
                     Image(systemName: "sparkle").font(.system(size: 44, weight: .ultraLight)).foregroundStyle(.white.opacity(0.9))
                 }
                 .frame(height: 285)
                 .clipShape(RoundedRectangle(cornerRadius: 27, style: .continuous))
                 .overlay(RoundedRectangle(cornerRadius: 27, style: .continuous).strokeBorder(.white.opacity(0.18)))
                 .glassCard()
+                .contentShape(RoundedRectangle(cornerRadius: 27, style: .continuous))
+                .gesture(DragGesture(minimumDistance: 24).onEnded { value in
+                    guard abs(value.translation.width) > 30 else { return }
+                    let direction = value.translation.width < 0 ? 1 : -1
+                    withAnimation(.easeInOut(duration: 0.45)) {
+                        selectedWallpaperScene = (selectedWallpaperScene + direction + 3) % 3
+                    }
+                })
+                .onAppear {
+                    wallpaperPulse = true
+                }
+                .animation(.easeInOut(duration: 3.2).repeatForever(autoreverses: true), value: wallpaperPulse)
                 VStack(alignment: .leading, spacing: 12) {
                     sectionIntro("交互场景", detail: "切换不同的动态视觉主题", symbol: "slider.horizontal.3")
                     HStack(spacing: 9) {
@@ -447,6 +483,81 @@ struct ContentView: View {
         .background(atmosphericBackground.ignoresSafeArea())
         .navigationTitle("动态交互壁纸")
         .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private var cacheCleanerDetailView: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                detailHero(title: "缓存管理", subtitle: "仅管理 NEXUS 应用沙盒中的缓存文件", symbol: "internaldrive", tint: .orange)
+                VStack(alignment: .leading, spacing: 13) {
+                    sectionIntro("缓存占用", detail: "扫描应用 Caches 目录，不触碰照片、文件或 iOS 系统缓存", symbol: "externaldrive")
+                    HStack(alignment: .firstTextBaseline, spacing: 7) {
+                        Text(ByteCountFormatter.string(fromByteCount: cacheBytes, countStyle: .file))
+                            .font(.system(size: 30, weight: .bold, design: .rounded)).foregroundStyle(.orange)
+                        Spacer()
+                        Button { refreshNEXUSCacheSize() } label: { Label("刷新", systemImage: "arrow.clockwise").font(.caption.weight(.semibold)) }
+                            .buttonStyle(.bordered)
+                    }
+                    Text("缓存状态：\(cacheClearResult)").font(.caption).foregroundStyle(.white.opacity(0.62))
+                    Button(role: .destructive) { showCacheClearConfirmation = true } label: {
+                        Label("清理 NEXUS 缓存", systemImage: "trash")
+                            .frame(maxWidth: .infinity).padding(.vertical, 5)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.orange)
+                    .disabled(cacheBytes == 0)
+                    .confirmationDialog("清理 NEXUS 应用缓存？", isPresented: $showCacheClearConfirmation, titleVisibility: .visible) {
+                        Button("清理缓存", role: .destructive) { clearNEXUSCache() }
+                        Button("取消", role: .cancel) {}
+                    } message: {
+                        Text("只删除 NEXUS 沙盒 Caches 目录内可再生成的临时文件，不会清理 iOS 系统缓存、其他应用数据或个人文件。")
+                    }
+                }
+                .padding(16).glassCard()
+                VStack(alignment: .leading, spacing: 8) {
+                    sectionIntro("权限说明", detail: "普通 IPA 的文件访问范围", symbol: "lock.shield")
+                    noteText("iOS 应用沙盒隔离不同应用的数据。NEXUS 无法访问其他应用的私有缓存，也不能清理系统级缓存。这里的“清理设备缓存”实际仅代表清理 NEXUS 自己的缓存。", tint: .orange)
+                }
+                .padding(16).glassCard()
+            }
+            .padding(16)
+        }
+        .background(atmosphericBackground.ignoresSafeArea())
+        .navigationTitle("缓存管理")
+        .navigationBarTitleDisplayMode(.inline)
+        .onAppear { refreshNEXUSCacheSize() }
+    }
+
+    private func refreshNEXUSCacheSize() {
+        let cacheURL = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
+        guard let cacheURL,
+              let enumerator = FileManager.default.enumerator(at: cacheURL, includingPropertiesForKeys: [.fileSizeKey, .isRegularFileKey], options: [.skipsHiddenFiles]) else {
+            cacheBytes = 0
+            cacheClearResult = "无法读取应用缓存目录"
+            return
+        }
+        var total: Int64 = 0
+        for case let fileURL as URL in enumerator {
+            let values = try? fileURL.resourceValues(forKeys: [.fileSizeKey, .isRegularFileKey])
+            if values?.isRegularFile == true { total += Int64(values?.fileSize ?? 0) }
+        }
+        cacheBytes = total
+        if cacheClearResult == "尚未清理" { cacheClearResult = "扫描完成" }
+    }
+
+    private func clearNEXUSCache() {
+        guard let cacheURL = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first else {
+            cacheClearResult = "无法定位缓存目录"
+            return
+        }
+        do {
+            let files = try FileManager.default.contentsOfDirectory(at: cacheURL, includingPropertiesForKeys: nil, options: [.skipsHiddenFiles])
+            for file in files { try FileManager.default.removeItem(at: file) }
+            cacheClearResult = "清理完成 · 已删除 \(files.count) 个缓存项目"
+            refreshNEXUSCacheSize()
+        } catch {
+            cacheClearResult = "清理失败：\(error.localizedDescription)"
+        }
     }
 
     private var moreFunctionsDetailView: some View {
