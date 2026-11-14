@@ -34,8 +34,8 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.aodsmart.controller
         PRODUCT_NAME: "NEXUS"
-        MARKETING_VERSION: "0.4.7"
-        CURRENT_PROJECT_VERSION: "15"
+        MARKETING_VERSION: "0.4.8"
+        CURRENT_PROJECT_VERSION: "16"
         INFOPLIST_KEY_CFBundleDisplayName: "NEXUS"
         INFOPLIST_KEY_NSMotionUsageDescription: "用于判断手机是否屏幕朝下。"
         INFOPLIST_KEY_UIUserInterfaceStyle: Dark
