@@ -25,14 +25,11 @@ struct ContentView: View {
     @EnvironmentObject private var systemInspector: SystemCapabilityInspector
     @StateObject private var appGroupDiagnostics = AppGroupDiagnostics()
     @State private var selectedTab: DashboardTab = .overview
-    @State private var ambientMotion = false
     @AppStorage("NEXUS.feature.aodEnabled") private var aodEnabled = false
     @AppStorage("NEXUS.feature.dynamicIslandEnabled") private var dynamicIslandEnabled = false
     @State private var showResetConfirmation = false
     @State private var showLogoutInfo = false
     @State private var batteryLevel: Float = UIDevice.current.batteryLevel
-    @State private var selectedWallpaperScene = 0
-    @State private var wallpaperPulse = false
     @State private var cacheBytes: Int64 = 0
     @State private var cacheClearResult = "尚未清理"
     @State private var showCacheClearConfirmation = false
@@ -65,9 +62,6 @@ struct ContentView: View {
         .preferredColorScheme(.dark)
         .statusBarHidden(true)
         .persistentSystemOverlays(.hidden)
-        .onAppear {
-            ambientMotion = true
-        }
     }
 
     @ViewBuilder
@@ -98,93 +92,31 @@ struct ContentView: View {
     }
 
     private func pageHeader(title: String) -> some View {
-        HStack(spacing: 11) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 13, style: .continuous)
-                    .fill(
-                        LinearGradient(
-                            colors: [.cyan.opacity(0.88), .blue.opacity(0.72), .purple.opacity(0.68)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                Image(systemName: "point.3.connected.trianglepath.dotted")
-                    .font(.system(size: 19, weight: .semibold))
-                    .foregroundStyle(.white)
-            }
-            .frame(width: 39, height: 39)
-            .overlay {
-                RoundedRectangle(cornerRadius: 13, style: .continuous)
-                    .strokeBorder(.white.opacity(0.24), lineWidth: 0.8)
-            }
-            .shadow(color: .cyan.opacity(0.18), radius: 9, y: 3)
+        HStack(spacing: 10) {
+            Image(systemName: "point.3.connected.trianglepath.dotted")
+                .font(.system(size: 20, weight: .semibold))
+                .foregroundStyle(.white)
+                .frame(width: 34, height: 34)
+                .background(Color.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 9, style: .continuous))
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.system(size: 19, weight: .bold, design: .rounded))
-                    .foregroundStyle(.white)
-                    .lineLimit(1)
-                Text("NEXUS · 灵枢工作台")
-                    .font(.system(size: 10, weight: .medium))
-                    .foregroundStyle(.white.opacity(0.48))
+                Text("NEXUS").font(.system(size: 16, weight: .bold)).foregroundStyle(.white)
+                Text(title).font(.system(size: 11, weight: .medium)).foregroundStyle(.white.opacity(0.58))
             }
-
             Spacer(minLength: 8)
-
-            VStack(alignment: .trailing, spacing: 3) {
-                Text("0.5.0")
-                    .font(.system(size: 11, weight: .bold, design: .rounded).monospaced())
-                    .foregroundStyle(.white.opacity(0.9))
-                Text("BUILD 18")
-                    .font(.system(size: 8, weight: .semibold, design: .rounded).monospaced())
-                    .tracking(0.5)
-                    .foregroundStyle(.cyan.opacity(0.9))
-            }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 7)
-            .background(.ultraThinMaterial, in: Capsule())
-            .overlay(Capsule().strokeBorder(.white.opacity(0.14), lineWidth: 0.8))
+            Text("0.5.1")
+                .font(.system(size: 11, weight: .semibold).monospaced())
+                .foregroundStyle(.white.opacity(0.72))
+                .padding(.horizontal, 9).padding(.vertical, 6)
+                .background(Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 7, style: .continuous))
         }
-        .padding(.horizontal, 18)
-        .padding(.top, 2)
-        .padding(.bottom, 7)
-        .background {
-            Rectangle()
-                .fill(.ultraThinMaterial.opacity(0.42))
-                .overlay(alignment: .bottom) {
-                    Rectangle().fill(.white.opacity(0.07)).frame(height: 0.5)
-                }
-                .ignoresSafeArea(edges: .top)
-        }
+        .padding(.horizontal, 16).padding(.vertical, 10)
+        .background(Color(red: 0.075, green: 0.09, blue: 0.12))
+        .overlay(alignment: .bottom) { Rectangle().fill(Color.white.opacity(0.10)).frame(height: 1) }
     }
 
     private var atmosphericBackground: some View {
-        GeometryReader { proxy in
-            ZStack {
-                Color(red: 0.025, green: 0.045, blue: 0.09)
-                RadialGradient(
-                    colors: [Color.cyan.opacity(0.19), .clear],
-                    center: .topTrailing,
-                    startRadius: 10,
-                    endRadius: proxy.size.width * 0.95
-                )
-                Circle()
-                    .fill(Color.blue.opacity(0.15))
-                    .frame(width: 260, height: 260)
-                    .blur(radius: 70)
-                    .offset(x: ambientMotion ? proxy.size.width * 0.48 : proxy.size.width * 0.18,
-                            y: ambientMotion ? -proxy.size.height * 0.18 : -proxy.size.height * 0.04)
-                Circle()
-                    .fill(Color.purple.opacity(0.11))
-                    .frame(width: 240, height: 240)
-                    .blur(radius: 75)
-                    .offset(x: ambientMotion ? -proxy.size.width * 0.48 : -proxy.size.width * 0.2,
-                            y: proxy.size.height * 0.52)
-            }
-            .ignoresSafeArea()
-            .animation(.easeInOut(duration: 9).repeatForever(autoreverses: true), value: ambientMotion)
-        }
-        .ignoresSafeArea()
+        Color(red: 0.055, green: 0.067, blue: 0.086).ignoresSafeArea()
     }
 
     private var topBar: some View {
@@ -262,7 +194,7 @@ struct ContentView: View {
             featureIntroHero
             VStack(alignment: .leading, spacing: 18) {
                 sectionIntro("核心研发", detail: "NEXUS 后续版本只聚焦以下两个方向", symbol: "sparkles")
-                featureToggleRow(title: "强开 AOD", detail: "围绕 iOS 27.2 与 iPhone 13 Pro Max 开展兼容性、传感器策略和可行性研究；开关目前仅保存应用内状态。", symbol: "moon.stars.fill", tint: .cyan, status: "核心研发", isOn: $aodEnabled)
+                featureToggleRow(title: "AOD 研究开关", detail: "启动传感器策略与兼容性实验；该开关仅控制应用内实验流程，不代表系统 AOD 已开启。", symbol: "moon.stars.fill", tint: .cyan, status: "实验中", isOn: $aodEnabled)
                 Divider().overlay(.white.opacity(0.10))
                 featureToggleRow(title: "iPhone 13 Pro Max 定制灵动岛", detail: "专注本机屏幕形态、动态布局和应用内实时交互体验。", symbol: "capsule", tint: .purple, status: "核心研发", isOn: $dynamicIslandEnabled)
             }
@@ -274,10 +206,6 @@ struct ContentView: View {
                 sectionIntro("设备工具", detail: "辅助功能独立运行，不影响 AOD 与灵动岛研发", symbol: "wrench.and.screwdriver")
                 NavigationLink { batteryDetailView } label: {
                     featureNavigationRow(title: "电池检测", detail: "实时电量、充电状态与设备续航参考", symbol: "battery.100percent", tint: .green, status: "可用")
-                }.buttonStyle(.plain)
-                Divider().overlay(.white.opacity(0.10))
-                NavigationLink { wallpaperDetailView } label: {
-                    featureNavigationRow(title: "动态交互壁纸", detail: "应用内动态场景、触控与主题切换", symbol: "sparkles.rectangle.stack", tint: .pink, status: "实验")
                 }.buttonStyle(.plain)
                 Divider().overlay(.white.opacity(0.10))
                 NavigationLink { cacheCleanerDetailView } label: {
@@ -421,68 +349,6 @@ struct ContentView: View {
         case .unknown: "系统暂未提供"
         @unknown default: "未知"
         }
-    }
-
-    private var wallpaperDetailView: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                detailHero(title: "动态交互壁纸", subtitle: "NEXUS 壁纸实验室 · 交互预览", symbol: "sparkles.rectangle.stack", tint: .pink)
-                ZStack {
-                    let palettes: [[Color]] = [
-                        [Color(red: 0.02, green: 0.38, blue: 0.52), Color(red: 0.18, green: 0.10, blue: 0.42), .black],
-                        [Color(red: 0.48, green: 0.12, blue: 0.35), Color(red: 0.12, green: 0.12, blue: 0.38), .black],
-                        [Color(red: 0.10, green: 0.42, blue: 0.28), Color(red: 0.03, green: 0.16, blue: 0.34), .black]
-                    ]
-                    LinearGradient(colors: palettes[selectedWallpaperScene % palettes.count], startPoint: .topLeading, endPoint: .bottomTrailing)
-                    Circle().fill(.white.opacity(0.18)).frame(width: 145, height: 145).blur(radius: 34).offset(x: 78, y: -52)
-                    Circle().stroke(.white.opacity(0.25), lineWidth: 1).frame(width: 190, height: 190)
-                        .rotationEffect(.degrees(wallpaperPulse ? 28 : -28))
-                    Circle().stroke(.white.opacity(0.13), lineWidth: 1).frame(width: 145, height: 145)
-                        .scaleEffect(wallpaperPulse ? 1.12 : 0.88)
-                    Image(systemName: "sparkle").font(.system(size: 44, weight: .ultraLight)).foregroundStyle(.white.opacity(0.9))
-                }
-                .frame(height: 285)
-                .clipShape(RoundedRectangle(cornerRadius: 27, style: .continuous))
-                .overlay(RoundedRectangle(cornerRadius: 27, style: .continuous).strokeBorder(.white.opacity(0.18)))
-                .glassCard()
-                .contentShape(RoundedRectangle(cornerRadius: 27, style: .continuous))
-                .gesture(DragGesture(minimumDistance: 24).onEnded { value in
-                    guard abs(value.translation.width) > 30 else { return }
-                    let direction = value.translation.width < 0 ? 1 : -1
-                    withAnimation(.easeInOut(duration: 0.45)) {
-                        selectedWallpaperScene = (selectedWallpaperScene + direction + 3) % 3
-                    }
-                })
-                .onAppear {
-                    wallpaperPulse = true
-                }
-                .animation(.easeInOut(duration: 3.2).repeatForever(autoreverses: true), value: wallpaperPulse)
-                VStack(alignment: .leading, spacing: 12) {
-                    sectionIntro("交互场景", detail: "切换不同的动态视觉主题", symbol: "slider.horizontal.3")
-                    HStack(spacing: 9) {
-                        ForEach(0..<3, id: \.self) { index in
-                            Button {
-                                withAnimation(.easeInOut(duration: 0.45)) { selectedWallpaperScene = index }
-                            } label: {
-                                Text(["深海极光", "暮色星云", "森林脉冲"][index])
-                                    .font(.caption.weight(.semibold))
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 11)
-                                    .background(selectedWallpaperScene == index ? .cyan.opacity(0.2) : .white.opacity(0.06), in: Capsule())
-                                    .overlay(Capsule().strokeBorder(selectedWallpaperScene == index ? .cyan.opacity(0.45) : .white.opacity(0.1)))
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-                    noteText("当前为 NEXUS 应用内效果预览，不会直接替换 iOS 锁屏或主屏幕壁纸。", tint: .orange)
-                }
-                .padding(16).glassCard()
-            }
-            .padding(16)
-        }
-        .background(atmosphericBackground.ignoresSafeArea())
-        .navigationTitle("动态交互壁纸")
-        .navigationBarTitleDisplayMode(.inline)
     }
 
     private var cacheCleanerDetailView: some View {
@@ -982,7 +848,6 @@ struct ContentView: View {
             sectionIntro("扩展功能规划", detail: "为后续模块预留入口", symbol: "square.grid.2x2")
             roadmapRow(title: "电池详细信息", detail: "电量、充电状态与可公开读取的电池信息", symbol: "battery.100percent", tint: .green)
             roadmapRow(title: "灵动岛风格组件", detail: "针对 iPhone 13 Pro Max 屏幕布局设计的应用内交互组件", symbol: "capsule", tint: .cyan)
-            roadmapRow(title: "动态交互壁纸", detail: "应用内动态场景与壁纸预览体验", symbol: "sparkles.rectangle.stack", tint: .purple)
             Text("以上均为规划占位入口，尚未实现；后续会按系统公开 API 和设备限制逐项开发。")
                 .font(.caption2).foregroundStyle(.white.opacity(0.52))
         }
@@ -992,7 +857,7 @@ struct ContentView: View {
     private var limitationCard: some View {
         VStack(alignment: .leading, spacing: 9) {
             sectionIntro("能力边界", detail: "当前版本说明", symbol: "info.circle")
-            Text("普通 IPA 没有公开 API 可以关闭 iOS 系统 AOD。环境光滑块仅用于算法验证，不是真实 lux 读数。传感器监听不能保证在应用进入后台或锁屏后持续运行。App Group 检测成功也不代表获得 MobileGestalt 或 SpringBoard 权限。")
+            Text("iPhone 13 Pro Max 不在 Apple 原生 Always-On Display 支持机型之列；Apple 官方列出的支持范围从 iPhone 14 Pro 系列开始。NEXUS 当前可验证接近与运动传感器策略，但普通 IPA 无公开接口可强制开启系统 AOD，且传感器监听不能保证在后台或锁屏后持续运行。App Group 检测成功也不代表获得 MobileGestalt 或 SpringBoard 写入权限。")
                 .font(.footnote).foregroundStyle(.white.opacity(0.58))
                 .fixedSize(horizontal: false, vertical: true)
         }
