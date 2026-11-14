@@ -72,7 +72,7 @@ struct ContentView: View {
     @ViewBuilder
     private func navigationPage<Content: View>(
         title: String,
-        @ViewBuilder content: () -> Content
+        @ViewBuilder content: @escaping () -> Content
     ) -> some View {
         NavigationStack {
             VStack(spacing: 0) {
