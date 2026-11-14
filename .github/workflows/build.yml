@@ -13,6 +13,7 @@ on:
       - feature/nexus-0.4.1-battery-center
       - feature/nexus-0.4.2-entitlement-diagnostics
       - feature/nexus-0.4.3-dashboard-redesign
+      - feature/nexus-0.5.2-aod-sensor-integration
   pull_request:
     branches:
       - main
