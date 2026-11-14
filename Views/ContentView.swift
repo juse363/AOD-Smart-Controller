@@ -849,6 +849,8 @@ struct ContentView: View {
         .padding(.horizontal, 18)
         .padding(.bottom, 12)
         .frame(maxWidth: .infinity)
+        // Use the native Liquid Glass material on the iOS 27.2 design baseline.
+        .glassEffect(.regular.interactive(), in: Capsule())
     }
 
     private var capabilityCard: some View {
