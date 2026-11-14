@@ -3,7 +3,7 @@ import SwiftUI
 private enum DashboardTab: String, CaseIterable, Identifiable {
     case overview = "总览"
     case sensors = "传感"
-    case laboratory = "实验室"
+    case laboratory = "签名与权限"
     case system = "系统"
 
     var id: String { rawValue }
@@ -12,7 +12,7 @@ private enum DashboardTab: String, CaseIterable, Identifiable {
         switch self {
         case .overview: "square.grid.2x2.fill"
         case .sensors: "sensor.fill"
-        case .laboratory: "slider.horizontal.3"
+        case .laboratory: "checkmark.shield.fill"
         case .system: "gearshape.2.fill"
         }
     }
@@ -29,31 +29,26 @@ struct ContentView: View {
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            navigationPage(title: "NEXUS") {
-                overviewContent
+            navigationPage(title: "功能介绍") {
+                featureIntroContent
             }
-            .tabItem { Label("总览", systemImage: "square.grid.2x2") }
+            .tabItem { Label("功能介绍", systemImage: "sparkles") }
             .tag(DashboardTab.overview)
 
-            navigationPage(title: "传感器") {
-                sensorCard
+            navigationPage(title: "传感") {
+                sensorWorkspaceContent
             }
             .tabItem { Label("传感", systemImage: "sensor") }
             .tag(DashboardTab.sensors)
 
-            navigationPage(title: "实验室") {
-                algorithmCard
+            navigationPage(title: "签名与权限") {
+                appGroupCard
             }
-            .tabItem { Label("实验室", systemImage: "slider.horizontal.3") }
+            .tabItem { Label("签名与权限", systemImage: "checkmark.shield") }
             .tag(DashboardTab.laboratory)
 
-            navigationPage(title: "系统") {
-                VStack(spacing: 12) {
-                    appGroupCard
-                    capabilityCard
-                    futureFeaturesCard
-                    limitationCard
-                }
+            navigationPage(title: "系统能力") {
+                capabilityCard
             }
             .tabItem { Label("系统", systemImage: "gearshape") }
             .tag(DashboardTab.system)
@@ -81,12 +76,15 @@ struct ContentView: View {
                     content()
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, 16)
-                        .padding(.top, 7)
-                        .padding(.bottom, 28)
+                        .padding(.top, 9)
+                        .padding(.bottom, 30)
+                        .frame(maxWidth: .infinity, alignment: .topLeading)
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .scrollBounceBehavior(.basedOnSize)
             }
-            .background(Color.clear)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .background(atmosphericBackground.ignoresSafeArea())
             .toolbar(.hidden, for: .navigationBar)
         }
     }
@@ -126,10 +124,10 @@ struct ContentView: View {
             Spacer(minLength: 8)
 
             VStack(alignment: .trailing, spacing: 3) {
-                Text("0.4.4")
+                Text("0.4.5")
                     .font(.system(size: 11, weight: .bold, design: .rounded).monospaced())
                     .foregroundStyle(.white.opacity(0.9))
-                Text("BUILD 12")
+                Text("BUILD 13")
                     .font(.system(size: 8, weight: .semibold, design: .rounded).monospaced())
                     .tracking(0.5)
                     .foregroundStyle(.cyan.opacity(0.9))
@@ -241,6 +239,91 @@ struct ContentView: View {
                 futureFeaturesCard
                 limitationCard
             }
+        }
+    }
+
+    private var sensorWorkspaceContent: some View {
+        VStack(spacing: 13) {
+            overviewContent
+            sensorCard
+        }
+    }
+
+    private var featureIntroContent: some View {
+        VStack(spacing: 13) {
+            featureIntroHero
+            VStack(alignment: .leading, spacing: 13) {
+                sectionIntro("核心功能", detail: "围绕 iPhone 13 Pro Max 持续扩展", symbol: "square.grid.2x2")
+                featureIntroRow(title: "强开 AOD", detail: "持续研究原生息屏显示的兼容路径与状态策略；普通 IPA 暂无公开接口直接开启 iOS 原生 AOD。", symbol: "moon.stars.fill", tint: .cyan, status: "研究中")
+                featureIntroRow(title: "iPhone 13 Pro Max 定制灵动岛", detail: "针对 428 pt 逻辑宽度打造应用内灵动岛视觉与交互体验。", symbol: "capsule", tint: .purple, status: "规划中")
+                featureIntroRow(title: "电池检测", detail: "整合系统公开可读取的电量、充电状态与电池信息。", symbol: "battery.100percent", tint: .green, status: "规划中")
+                featureIntroRow(title: "动态交互壁纸", detail: "加入动态场景、交互效果与应用内壁纸预览。", symbol: "sparkles.rectangle.stack", tint: .pink, status: "规划中")
+                featureIntroRow(title: "更多功能", detail: "持续扩展设备状态、个性化组件与智能控制相关模块。", symbol: "ellipsis.circle.fill", tint: .orange, status: "持续更新")
+            }
+            .padding(15)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .glassCard()
+        }
+    }
+
+    private var featureIntroHero: some View {
+        ZStack(alignment: .leading) {
+            RoundedRectangle(cornerRadius: 25, style: .continuous)
+                .fill(LinearGradient(
+                    colors: [Color(red: 0.06, green: 0.25, blue: 0.38).opacity(0.98),
+                             Color(red: 0.12, green: 0.10, blue: 0.29).opacity(0.98)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ))
+            Circle()
+                .stroke(.cyan.opacity(0.14), lineWidth: 1)
+                .frame(width: 190, height: 190)
+                .overlay(Circle().stroke(.cyan.opacity(0.08), lineWidth: 1).padding(20))
+                .offset(x: 238, y: 8)
+            VStack(alignment: .leading, spacing: 9) {
+                Text("NEXUS · FEATURE OVERVIEW")
+                    .font(.system(size: 9, weight: .bold, design: .rounded))
+                    .tracking(1.5)
+                    .foregroundStyle(.cyan.opacity(0.92))
+                Text("为 iPhone 13 Pro Max\n打造的智能扩展工作台")
+                    .font(.system(size: 23, weight: .bold, design: .rounded))
+                    .lineSpacing(2)
+                    .foregroundStyle(.white)
+                Text("从设备感知到个性化交互，逐步解锁更多可能。")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundStyle(.white.opacity(0.62))
+            }
+            .padding(19)
+        }
+        .frame(height: 158)
+        .clipShape(RoundedRectangle(cornerRadius: 25, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 25, style: .continuous).strokeBorder(.white.opacity(0.12)))
+        .shadow(color: .blue.opacity(0.13), radius: 18, y: 8)
+    }
+
+    private func featureIntroRow(title: String, detail: String, symbol: String, tint: Color, status: String) -> some View {
+        HStack(alignment: .top, spacing: 11) {
+            Image(systemName: symbol)
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(tint)
+                .frame(width: 41, height: 41)
+                .background(tint.opacity(0.13), in: RoundedRectangle(cornerRadius: 13, style: .continuous))
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(alignment: .firstTextBaseline, spacing: 7) {
+                    Text(title).font(.subheadline.weight(.semibold)).foregroundStyle(.white)
+                    Text(status)
+                        .font(.system(size: 9, weight: .semibold))
+                        .foregroundStyle(tint)
+                        .padding(.horizontal, 7)
+                        .padding(.vertical, 3)
+                        .background(tint.opacity(0.12), in: Capsule())
+                }
+                Text(detail)
+                    .font(.caption)
+                    .foregroundStyle(.white.opacity(0.55))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer(minLength: 0)
         }
     }
 
@@ -370,6 +453,13 @@ struct ContentView: View {
         .accessibilityElement(children: .combine)
     }
 
+    private var recognizedDeviceName: String {
+        switch systemInspector.deviceIdentifier {
+        case "iPhone14,3": "iPhone 13 Pro Max"
+        default: systemInspector.deviceIdentifier
+        }
+    }
+
     private var statusTint: Color {
         proximity.isCovered ? .orange : .cyan
     }
@@ -437,11 +527,11 @@ struct ContentView: View {
     private var capabilityCard: some View {
         VStack(alignment: .leading, spacing: 10) {
             cardHeading("系统能力", subtitle: "设备与原生接口", icon: "cpu")
+            infoRow("识别机型", recognizedDeviceName)
             infoRow("设备标识", systemInspector.deviceIdentifier)
             infoRow("iOS 版本", systemInspector.systemVersion)
-            infoRow("设备能力", systemInspector.summary)
-            infoRow("原生 AOD", systemInspector.aodControlStatus)
-            noteText("只读诊断：不会修改 MobileGestalt，也不会伪装硬件能力。", tint: .orange)
+            infoRow("应用状态", systemInspector.appState)
+            noteText("这里只展示系统实际识别到的设备型号与基础系统信息。", tint: .cyan)
         }
         .padding(15).frame(maxWidth: .infinity, alignment: .leading).glassCard()
     }
