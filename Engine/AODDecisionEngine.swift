@@ -11,10 +11,16 @@ final class AODDecisionEngine: ObservableObject {
 
     private var proximityCovered = false
     private var faceDown = false
+    private var sensorsReady = false
 
-    func update(proximityCovered: Bool? = nil, faceDown: Bool? = nil) {
+    func update(
+        proximityCovered: Bool? = nil,
+        faceDown: Bool? = nil,
+        sensorsReady: Bool? = nil
+    ) {
         if let proximityCovered { self.proximityCovered = proximityCovered }
         if let faceDown { self.faceDown = faceDown }
+        if let sensorsReady { self.sensorsReady = sensorsReady }
         recalculate()
     }
 
@@ -24,6 +30,12 @@ final class AODDecisionEngine: ObservableObject {
     }
 
     func recalculate() {
+        guard sensorsReady else {
+            state = .unknown
+            reason = "接近与姿态传感器尚未全部就绪"
+            return
+        }
+
         if proximityCovered {
             state = .pocket
             reason = "接近传感器报告遮挡"
