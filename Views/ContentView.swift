@@ -810,6 +810,8 @@ struct ContentView: View {
             Divider().overlay(.white.opacity(0.10))
             cardHeading("设备规格", subtitle: "iPhone 13 Pro Max 硬件信息与参考数据", icon: "iphone")
             infoRow("屏幕尺寸", "6.7 英寸")
+            infoRow("机身尺寸", "160.8 × 78.1 × 7.65 mm")
+            infoRow("机身重量", "约 238 g")
             infoRow("屏幕分辨率", "2778 × 1284 像素")
             infoRow("逻辑分辨率", "428 × 926 pt")
             infoRow("运行内存", "6 GB")
