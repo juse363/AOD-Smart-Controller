@@ -132,10 +132,10 @@ struct ContentView: View {
             Spacer(minLength: 8)
 
             VStack(alignment: .trailing, spacing: 3) {
-                Text("0.4.9")
+                Text("0.5.0")
                     .font(.system(size: 11, weight: .bold, design: .rounded).monospaced())
                     .foregroundStyle(.white.opacity(0.9))
-                Text("BUILD 17")
+                Text("BUILD 18")
                     .font(.system(size: 8, weight: .semibold, design: .rounded).monospaced())
                     .tracking(0.5)
                     .foregroundStyle(.cyan.opacity(0.9))
