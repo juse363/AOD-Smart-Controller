@@ -78,9 +78,9 @@ struct ContentView: View {
                 ScrollView(showsIndicators: false) {
                     content()
                         .frame(maxWidth: .infinity, alignment: .topLeading)
-                        .padding(.horizontal, 16)
-                        .padding(.top, 8)
-                        .padding(.bottom, 112)
+                        .padding(.horizontal, 12)
+                        .padding(.top, 4)
+                        .padding(.bottom, 96)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .scrollBounceBehavior(.basedOnSize)
@@ -142,8 +142,8 @@ struct ContentView: View {
             .overlay(Capsule().strokeBorder(.white.opacity(0.14), lineWidth: 0.8))
         }
         .padding(.horizontal, 18)
-        .padding(.top, 7)
-        .padding(.bottom, 10)
+        .padding(.top, 2)
+        .padding(.bottom, 7)
         .background {
             Rectangle()
                 .fill(.ultraThinMaterial.opacity(0.42))
@@ -256,21 +256,13 @@ struct ContentView: View {
     private var featureIntroContent: some View {
         VStack(spacing: 16) {
             featureIntroHero
-            VStack(alignment: .leading, spacing: 15) {
-                sectionIntro("核心功能", detail: "点击进入模块，或使用右侧开关调整功能状态", symbol: "square.grid.2x2")
-                featureToggleRow(title: "强开 AOD", detail: "原生息屏显示兼容性研究；开关仅保存应用内意向状态。", symbol: "moon.stars.fill", tint: .cyan, status: "研究中", isOn: $aodEnabled)
-                featureToggleRow(title: "iPhone 13 Pro Max 定制灵动岛", detail: "专为本机屏幕布局设计的应用内交互体验。", symbol: "capsule", tint: .purple, status: "规划中", isOn: $dynamicIslandEnabled)
-                NavigationLink { batteryDetailView } label: {
-                    featureNavigationRow(title: "电池检测", detail: "电量、充电状态、电池参数与续航参考。", symbol: "battery.100percent", tint: .green, status: "进入")
-                }.buttonStyle(.plain)
-                NavigationLink { wallpaperDetailView } label: {
-                    featureNavigationRow(title: "动态交互壁纸", detail: "动态场景预览、交互效果与壁纸体验。", symbol: "sparkles.rectangle.stack", tint: .pink, status: "进入")
-                }.buttonStyle(.plain)
-                NavigationLink { moreFunctionsDetailView } label: {
-                    featureNavigationRow(title: "更多功能", detail: "设备维护、缓存管理与后续扩展模块。", symbol: "ellipsis.circle.fill", tint: .orange, status: "进入")
-                }.buttonStyle(.plain)
+            VStack(alignment: .leading, spacing: 18) {
+                sectionIntro("核心研发", detail: "NEXUS 后续版本只聚焦以下两个方向", symbol: "sparkles")
+                featureToggleRow(title: "强开 AOD", detail: "围绕 iOS 27.2 与 iPhone 13 Pro Max 开展兼容性、传感器策略和可行性研究；开关目前仅保存应用内状态。", symbol: "moon.stars.fill", tint: .cyan, status: "核心研发", isOn: $aodEnabled)
+                Divider().overlay(.white.opacity(0.10))
+                featureToggleRow(title: "iPhone 13 Pro Max 定制灵动岛", detail: "专注本机屏幕形态、动态布局和应用内实时交互体验。", symbol: "capsule", tint: .purple, status: "核心研发", isOn: $dynamicIslandEnabled)
             }
-            .padding(17)
+            .padding(18)
             .frame(maxWidth: .infinity, alignment: .leading)
             .glassCard()
         }
@@ -762,95 +754,32 @@ struct ContentView: View {
         HStack(spacing: 5) {
             ForEach(DashboardTab.allCases) { tab in
                 Button {
-                    withAnimation(.spring(response: 0.36, dampingFraction: 0.72)) {
+                    withAnimation(.spring(response: 0.32, dampingFraction: 0.78)) {
                         selectedTab = tab
                     }
                 } label: {
                     VStack(spacing: 5) {
                         Image(systemName: tab.symbol)
-                            .font(.system(size: 17, weight: .semibold))
+                            .font(.system(size: 17, weight: .medium))
                             .symbolRenderingMode(.hierarchical)
                         Text(tab.rawValue)
-                            .font(.system(size: 10, weight: .semibold))
+                            .font(.system(size: 10, weight: .medium))
                     }
-                    .foregroundStyle(selectedTab == tab ? .cyan : .white.opacity(0.58))
+                    .foregroundStyle(selectedTab == tab ? .white : .white.opacity(0.56))
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 10)
-                    .background {
-                        if selectedTab == tab {
-                            RoundedRectangle(cornerRadius: 15, style: .continuous)
-                                .fill(
-                                    LinearGradient(
-                                        colors: [.cyan.opacity(0.20), .blue.opacity(0.10)],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    )
-                                )
-                                .overlay {
-                                    RoundedRectangle(cornerRadius: 15, style: .continuous)
-                                        .strokeBorder(.white.opacity(0.16), lineWidth: 0.7)
-                                }
-                        }
-                    }
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
             }
         }
-        .padding(.horizontal, 11)
-        .padding(.vertical, 8)
-        .frame(maxWidth: 390)
-        .background {
-            Capsule()
-                .fill(.ultraThinMaterial)
-                .overlay {
-                    Capsule()
-                        .fill(
-                            LinearGradient(
-                                colors: [.white.opacity(0.15), .white.opacity(0.035), .cyan.opacity(0.045)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                }
-                .overlay(alignment: .top) {
-                    Capsule()
-                        .strokeBorder(
-                            LinearGradient(
-                                colors: [.white.opacity(0.42), .white.opacity(0.10), .white.opacity(0.22)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 0.9
-                        )
-                }
-                .overlay {
-                    Capsule()
-                        .strokeBorder(.cyan.opacity(0.09), lineWidth: 1)
-                        .padding(2)
-                }
-                .shadow(color: .black.opacity(0.30), radius: 22, y: 9)
-                .shadow(color: .cyan.opacity(0.10), radius: 14, y: 0)
-        }
-        .overlay(alignment: .top) {
-            Capsule()
-                .fill(
-                    LinearGradient(
-                        colors: [.white.opacity(0.34), .white.opacity(0.04), .clear],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                )
-                .frame(height: 1)
-                .padding(.horizontal, 28)
-                .padding(.top, 1)
-                .allowsHitTesting(false)
-        }
-        .padding(.horizontal, 18)
-        .padding(.bottom, 12)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 7)
         .frame(maxWidth: .infinity)
-        // Use the native Liquid Glass material on the iOS 27.2 design baseline.
+        // Keep only the native transparent Liquid Glass surface: no tint, gradient, rim or glow.
         .glassEffect(.regular.interactive(), in: Capsule())
+        .padding(.horizontal, 12)
+        .padding(.bottom, 8)
     }
 
     private var capabilityCard: some View {
@@ -868,21 +797,7 @@ struct ContentView: View {
             infoRow("屏幕分辨率", "2778 × 1284 像素")
             infoRow("逻辑分辨率", "428 × 926 pt")
             infoRow("运行内存", "6 GB")
-            infoRow("电池标称容量", "约 4,352 mAh（参考值）")
-            infoRow("电池健康容量", "系统未开放公开读取")
-            infoRow("预计续航", "视频播放最高约 28 小时（官方标称）")
-            infoRow("充电功率", "实时瓦数不可读取；约 27W 峰值为参考")
-            Divider().overlay(.white.opacity(0.10))
-            HStack(spacing: 10) {
-                Image(systemName: "internaldrive.fill").foregroundStyle(.cyan)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("设备缓存清理").font(.subheadline.weight(.semibold)).foregroundStyle(.white)
-                    Text("后续规划；普通 IPA 无法清理 iOS 系统级缓存。").font(.caption2).foregroundStyle(.white.opacity(0.52))
-                }
-                Spacer()
-                Text("规划中").font(.caption2.weight(.semibold)).foregroundStyle(.orange)
-            }
-            noteText("标称容量、续航和充电功率为规格参考，不代表当前电池健康状态或实时测量值。", tint: .cyan)
+            noteText("本页仅展示设备识别信息与硬件规格。", tint: .cyan)
         }
         .padding(15).frame(maxWidth: .infinity, alignment: .leading).glassCard()
     }
