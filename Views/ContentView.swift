@@ -26,6 +26,12 @@ struct ContentView: View {
     @StateObject private var appGroupDiagnostics = AppGroupDiagnostics()
     @State private var selectedTab: DashboardTab = .overview
     @State private var ambientMotion = false
+    @AppStorage("NEXUS.feature.aodEnabled") private var aodEnabled = false
+    @AppStorage("NEXUS.feature.dynamicIslandEnabled") private var dynamicIslandEnabled = false
+    @State private var showResetConfirmation = false
+    @State private var showLogoutInfo = false
+    @State private var batteryLevel: Float = UIDevice.current.batteryLevel
+    @State private var selectedWallpaperScene = 0
 
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -72,16 +78,18 @@ struct ContentView: View {
             VStack(spacing: 0) {
                 pageHeader(title: title)
 
-                ScrollView(showsIndicators: false) {
-                    content()
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 16)
-                        .padding(.top, 9)
-                        .padding(.bottom, 30)
-                        .frame(maxWidth: .infinity, alignment: .topLeading)
+                GeometryReader { scrollProxy in
+                    ScrollView(showsIndicators: false) {
+                        content()
+                            .frame(maxWidth: .infinity, minHeight: scrollProxy.size.height, alignment: .topLeading)
+                            .padding(.horizontal, 16)
+                            .padding(.top, 12)
+                            .padding(.bottom, 34)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .scrollBounceBehavior(.basedOnSize)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .scrollBounceBehavior(.basedOnSize)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .background(atmosphericBackground.ignoresSafeArea())
@@ -124,10 +132,10 @@ struct ContentView: View {
             Spacer(minLength: 8)
 
             VStack(alignment: .trailing, spacing: 3) {
-                Text("0.4.5")
+                Text("0.4.6")
                     .font(.system(size: 11, weight: .bold, design: .rounded).monospaced())
                     .foregroundStyle(.white.opacity(0.9))
-                Text("BUILD 13")
+                Text("BUILD 14")
                     .font(.system(size: 8, weight: .semibold, design: .rounded).monospaced())
                     .tracking(0.5)
                     .foregroundStyle(.cyan.opacity(0.9))
@@ -250,20 +258,288 @@ struct ContentView: View {
     }
 
     private var featureIntroContent: some View {
-        VStack(spacing: 13) {
+        VStack(spacing: 16) {
             featureIntroHero
-            VStack(alignment: .leading, spacing: 13) {
-                sectionIntro("核心功能", detail: "围绕 iPhone 13 Pro Max 持续扩展", symbol: "square.grid.2x2")
-                featureIntroRow(title: "强开 AOD", detail: "持续研究原生息屏显示的兼容路径与状态策略；普通 IPA 暂无公开接口直接开启 iOS 原生 AOD。", symbol: "moon.stars.fill", tint: .cyan, status: "研究中")
-                featureIntroRow(title: "iPhone 13 Pro Max 定制灵动岛", detail: "针对 428 pt 逻辑宽度打造应用内灵动岛视觉与交互体验。", symbol: "capsule", tint: .purple, status: "规划中")
-                featureIntroRow(title: "电池检测", detail: "整合系统公开可读取的电量、充电状态与电池信息。", symbol: "battery.100percent", tint: .green, status: "规划中")
-                featureIntroRow(title: "动态交互壁纸", detail: "加入动态场景、交互效果与应用内壁纸预览。", symbol: "sparkles.rectangle.stack", tint: .pink, status: "规划中")
-                featureIntroRow(title: "更多功能", detail: "持续扩展设备状态、个性化组件与智能控制相关模块。", symbol: "ellipsis.circle.fill", tint: .orange, status: "持续更新")
+            VStack(alignment: .leading, spacing: 15) {
+                sectionIntro("核心功能", detail: "点击进入模块，或使用右侧开关调整功能状态", symbol: "square.grid.2x2")
+                featureToggleRow(title: "强开 AOD", detail: "原生息屏显示兼容性研究；开关仅保存应用内意向状态。", symbol: "moon.stars.fill", tint: .cyan, status: "研究中", isOn: $aodEnabled)
+                featureToggleRow(title: "iPhone 13 Pro Max 定制灵动岛", detail: "专为本机屏幕布局设计的应用内交互体验。", symbol: "capsule", tint: .purple, status: "规划中", isOn: $dynamicIslandEnabled)
+                NavigationLink { batteryDetailView } label: {
+                    featureNavigationRow(title: "电池检测", detail: "电量、充电状态、电池参数与续航参考。", symbol: "battery.100percent", tint: .green, status: "进入")
+                }.buttonStyle(.plain)
+                NavigationLink { wallpaperDetailView } label: {
+                    featureNavigationRow(title: "动态交互壁纸", detail: "动态场景预览、交互效果与壁纸体验。", symbol: "sparkles.rectangle.stack", tint: .pink, status: "进入")
+                }.buttonStyle(.plain)
+                NavigationLink { moreFunctionsDetailView } label: {
+                    featureNavigationRow(title: "更多功能", detail: "设备维护、缓存管理与后续扩展模块。", symbol: "ellipsis.circle.fill", tint: .orange, status: "进入")
+                }.buttonStyle(.plain)
             }
-            .padding(15)
+            .padding(17)
             .frame(maxWidth: .infinity, alignment: .leading)
             .glassCard()
         }
+        .frame(maxWidth: .infinity, alignment: .top)
+    }
+
+    private func featureToggleRow(title: String, detail: String, symbol: String, tint: Color, status: String, isOn: Binding<Bool>) -> some View {
+        HStack(alignment: .center, spacing: 11) {
+            featureIcon(symbol, tint: tint)
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 7) {
+                    Text(title).font(.subheadline.weight(.semibold)).foregroundStyle(.white)
+                    featureStatus(status, tint: tint)
+                }
+                Text(detail).font(.caption).foregroundStyle(.white.opacity(0.56))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer(minLength: 5)
+            liquidGlassSwitch(isOn: isOn)
+        }
+        .padding(.vertical, 3)
+    }
+
+    private func featureNavigationRow(title: String, detail: String, symbol: String, tint: Color, status: String) -> some View {
+        HStack(alignment: .center, spacing: 11) {
+            featureIcon(symbol, tint: tint)
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 7) {
+                    Text(title).font(.subheadline.weight(.semibold)).foregroundStyle(.white)
+                    featureStatus(status, tint: tint)
+                }
+                Text(detail).font(.caption).foregroundStyle(.white.opacity(0.56))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer(minLength: 5)
+            Image(systemName: "chevron.right")
+                .font(.system(size: 12, weight: .bold))
+                .foregroundStyle(.white.opacity(0.45))
+        }
+        .padding(.vertical, 4)
+        .contentShape(Rectangle())
+    }
+
+    private func featureIcon(_ symbol: String, tint: Color) -> some View {
+        Image(systemName: symbol)
+            .font(.system(size: 18, weight: .semibold))
+            .foregroundStyle(tint)
+            .frame(width: 43, height: 43)
+            .background(tint.opacity(0.14), in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+    }
+
+    private func featureStatus(_ status: String, tint: Color) -> some View {
+        Text(status)
+            .font(.system(size: 9, weight: .semibold))
+            .foregroundStyle(tint)
+            .padding(.horizontal, 7)
+            .padding(.vertical, 3)
+            .background(tint.opacity(0.12), in: Capsule())
+    }
+
+    private func liquidGlassSwitch(isOn: Binding<Bool>) -> some View {
+        Button {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.72)) {
+                isOn.wrappedValue.toggle()
+            }
+        } label: {
+            ZStack(alignment: isOn.wrappedValue ? .trailing : .leading) {
+                Capsule().fill(.ultraThinMaterial)
+                Capsule()
+                    .fill(isOn.wrappedValue
+                          ? LinearGradient(colors: [.cyan.opacity(0.9), .blue.opacity(0.78)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                          : LinearGradient(colors: [.white.opacity(0.10), .white.opacity(0.04)], startPoint: .top, endPoint: .bottom))
+                    .padding(2)
+                Circle()
+                    .fill(.regularMaterial)
+                    .overlay(Circle().strokeBorder(.white.opacity(0.52), lineWidth: 0.8))
+                    .shadow(color: .black.opacity(0.24), radius: 4, y: 2)
+                    .frame(width: 25, height: 25)
+                    .padding(4)
+            }
+            .frame(width: 57, height: 33)
+            .overlay(Capsule().strokeBorder(.white.opacity(0.23), lineWidth: 0.8))
+            .shadow(color: isOn.wrappedValue ? .cyan.opacity(0.28) : .clear, radius: 8, y: 2)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(isOn.wrappedValue ? "已开启" : "已关闭")
+    }
+
+    private var batteryDetailView: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                detailHero(title: "电池检测", subtitle: "读取 iOS 公开提供的电量与充电状态", symbol: "battery.100percent", tint: .green)
+                VStack(alignment: .leading, spacing: 12) {
+                    sectionIntro("实时状态", detail: "数据由系统公开接口提供", symbol: "waveform.path.ecg")
+                    HStack(alignment: .firstTextBaseline, spacing: 8) {
+                        Text(batteryLevel >= 0 ? "\(Int(batteryLevel * 100))%" : "—")
+                            .font(.system(size: 38, weight: .bold, design: .rounded)).foregroundStyle(.green)
+                        Text("当前电量").font(.caption).foregroundStyle(.white.opacity(0.55))
+                    }
+                    infoRow("充电状态", batteryStateDescription)
+                    infoRow("电池健康度", "iOS 未向普通应用开放精确读取")
+                    infoRow("真实最大容量", "无法通过公开 API 直接读取")
+                }
+                .padding(16).glassCard()
+                VStack(alignment: .leading, spacing: 10) {
+                    sectionIntro("电池与续航参考", detail: "机型规格，不等同于当前电池健康值", symbol: "clock")
+                    infoRow("出厂标称容量", "约 4,352 mAh（参考值）")
+                    infoRow("视频播放续航", "最高约 28 小时（官方标称条件）")
+                    infoRow("实时耗电预测", "需要持续采样后才能计算")
+                    infoRow("充电功率", "实时瓦数未开放读取；约 27W 峰值为第三方参考")
+                    noteText("电池容量会随老化下降；标称容量、系统电池健康度和实时可用容量是不同指标。", tint: .orange)
+                }
+                .padding(16).glassCard()
+            }
+            .padding(16)
+        }
+        .background(atmosphericBackground.ignoresSafeArea())
+        .navigationTitle("电池检测")
+        .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            UIDevice.current.isBatteryMonitoringEnabled = true
+            batteryLevel = UIDevice.current.batteryLevel
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIDevice.batteryLevelDidChangeNotification)) { _ in
+            batteryLevel = UIDevice.current.batteryLevel
+        }
+    }
+
+    private var batteryStateDescription: String {
+        switch UIDevice.current.batteryState {
+        case .charging: "正在充电"
+        case .full: "已充满"
+        case .unplugged: "未连接电源"
+        case .unknown: "系统暂未提供"
+        @unknown default: "未知"
+        }
+    }
+
+    private var wallpaperDetailView: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                detailHero(title: "动态交互壁纸", subtitle: "NEXUS 壁纸实验室 · 交互预览", symbol: "sparkles.rectangle.stack", tint: .pink)
+                ZStack {
+                    let palettes: [[Color]] = [
+                        [Color(red: 0.02, green: 0.38, blue: 0.52), Color(red: 0.18, green: 0.10, blue: 0.42), .black],
+                        [Color(red: 0.48, green: 0.12, blue: 0.35), Color(red: 0.12, green: 0.12, blue: 0.38), .black],
+                        [Color(red: 0.10, green: 0.42, blue: 0.28), Color(red: 0.03, green: 0.16, blue: 0.34), .black]
+                    ]
+                    LinearGradient(colors: palettes[selectedWallpaperScene % palettes.count], startPoint: .topLeading, endPoint: .bottomTrailing)
+                    Circle().fill(.white.opacity(0.18)).frame(width: 145, height: 145).blur(radius: 34).offset(x: 78, y: -52)
+                    Circle().stroke(.white.opacity(0.25), lineWidth: 1).frame(width: 190, height: 190)
+                    Circle().stroke(.white.opacity(0.13), lineWidth: 1).frame(width: 145, height: 145)
+                    Image(systemName: "sparkle").font(.system(size: 44, weight: .ultraLight)).foregroundStyle(.white.opacity(0.9))
+                }
+                .frame(height: 285)
+                .clipShape(RoundedRectangle(cornerRadius: 27, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 27, style: .continuous).strokeBorder(.white.opacity(0.18)))
+                .glassCard()
+                VStack(alignment: .leading, spacing: 12) {
+                    sectionIntro("交互场景", detail: "切换不同的动态视觉主题", symbol: "slider.horizontal.3")
+                    HStack(spacing: 9) {
+                        ForEach(0..<3, id: \.self) { index in
+                            Button {
+                                withAnimation(.easeInOut(duration: 0.45)) { selectedWallpaperScene = index }
+                            } label: {
+                                Text(["深海极光", "暮色星云", "森林脉冲"][index])
+                                    .font(.caption.weight(.semibold))
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 11)
+                                    .background(selectedWallpaperScene == index ? .cyan.opacity(0.2) : .white.opacity(0.06), in: Capsule())
+                                    .overlay(Capsule().strokeBorder(selectedWallpaperScene == index ? .cyan.opacity(0.45) : .white.opacity(0.1)))
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    noteText("当前为 NEXUS 应用内效果预览，不会直接替换 iOS 锁屏或主屏幕壁纸。", tint: .orange)
+                }
+                .padding(16).glassCard()
+            }
+            .padding(16)
+        }
+        .background(atmosphericBackground.ignoresSafeArea())
+        .navigationTitle("动态交互壁纸")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private var moreFunctionsDetailView: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                detailHero(title: "更多功能", subtitle: "设备维护与 NEXUS 扩展中心", symbol: "square.grid.2x2.fill", tint: .orange)
+                VStack(alignment: .leading, spacing: 12) {
+                    sectionIntro("设备维护", detail: "后续版本逐步开放", symbol: "wrench.and.screwdriver")
+                    HStack(spacing: 11) {
+                        featureIcon("internaldrive", tint: .cyan)
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("清理设备缓存").font(.subheadline.weight(.semibold)).foregroundStyle(.white)
+                            Text("规划中；普通 IPA 无法清理 iOS 系统级缓存。").font(.caption).foregroundStyle(.white.opacity(0.55))
+                        }
+                        Spacer()
+                        Text("规划中").font(.caption2.weight(.semibold)).foregroundStyle(.orange)
+                    }
+                    .padding(12).background(.white.opacity(0.045), in: RoundedRectangle(cornerRadius: 15))
+                }
+                .padding(16).glassCard()
+
+                VStack(alignment: .leading, spacing: 12) {
+                    sectionIntro("应用操作", detail: "只影响 NEXUS 自身，不修改系统文件", symbol: "gearshape.2")
+                    Button { showLogoutInfo = true } label: {
+                        Label("注销 / 重启 SpringBoard", systemImage: "rectangle.portrait.and.arrow.right")
+                            .frame(maxWidth: .infinity).padding(.vertical, 5)
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(.orange)
+                    .alert("注销功能暂不可用", isPresented: $showLogoutInfo) {
+                        Button("知道了", role: .cancel) {}
+                    } message: {
+                        Text("GestaltX 的“注销”实际是通过 NeoSpring 尝试重启 SpringBoard。NEXUS 当前是普通未越狱 IPA，没有这项系统级能力，因此这里只保留入口，不会假装执行成功。")
+                    }
+
+                    Button(role: .destructive) { showResetConfirmation = true } label: {
+                        Label("重置 NEXUS", systemImage: "arrow.counterclockwise")
+                            .frame(maxWidth: .infinity).padding(.vertical, 5)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.red)
+                    .confirmationDialog("重置 NEXUS 设置？", isPresented: $showResetConfirmation, titleVisibility: .visible) {
+                        Button("恢复默认设置", role: .destructive) { resetNEXUSSettings() }
+                        Button("取消", role: .cancel) {}
+                    } message: {
+                        Text("仅重置 NEXUS 内保存的开关与算法参数，不会清理设备缓存、删除照片或修改 iOS 系统设置。")
+                    }
+                }
+                .padding(16).glassCard()
+            }
+            .padding(16)
+        }
+        .background(atmosphericBackground.ignoresSafeArea())
+        .navigationTitle("更多功能")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+
+    private func detailHero(title: String, subtitle: String, symbol: String, tint: Color) -> some View {
+        HStack(spacing: 13) {
+            Image(systemName: symbol)
+                .font(.system(size: 25, weight: .semibold))
+                .foregroundStyle(tint)
+                .frame(width: 55, height: 55)
+                .background(tint.opacity(0.15), in: RoundedRectangle(cornerRadius: 17, style: .continuous))
+            VStack(alignment: .leading, spacing: 5) {
+                Text(title).font(.title3.weight(.bold)).foregroundStyle(.white)
+                Text(subtitle).font(.caption).foregroundStyle(.white.opacity(0.58))
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(17).frame(maxWidth: .infinity, alignment: .leading).glassCard()
+    }
+
+    private func resetNEXUSSettings() {
+        aodEnabled = false
+        dynamicIslandEnabled = false
+        engine.useSimulatedLux = false
+        engine.previewLux = 20
+        engine.darkThresholdLux = 10
+        engine.recalculate()
+        ambientMotion = true
     }
 
     private var featureIntroHero: some View {
@@ -531,7 +807,27 @@ struct ContentView: View {
             infoRow("设备标识", systemInspector.deviceIdentifier)
             infoRow("iOS 版本", systemInspector.systemVersion)
             infoRow("应用状态", systemInspector.appState)
-            noteText("这里只展示系统实际识别到的设备型号与基础系统信息。", tint: .cyan)
+            Divider().overlay(.white.opacity(0.10))
+            cardHeading("设备规格", subtitle: "iPhone 13 Pro Max 硬件信息与参考数据", icon: "iphone")
+            infoRow("屏幕尺寸", "6.7 英寸")
+            infoRow("屏幕分辨率", "2778 × 1284 像素")
+            infoRow("逻辑分辨率", "428 × 926 pt")
+            infoRow("运行内存", "6 GB")
+            infoRow("电池标称容量", "约 4,352 mAh（参考值）")
+            infoRow("电池健康容量", "系统未开放公开读取")
+            infoRow("预计续航", "视频播放最高约 28 小时（官方标称）")
+            infoRow("充电功率", "实时瓦数不可读取；约 27W 峰值为参考")
+            Divider().overlay(.white.opacity(0.10))
+            HStack(spacing: 10) {
+                Image(systemName: "internaldrive.fill").foregroundStyle(.cyan)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("设备缓存清理").font(.subheadline.weight(.semibold)).foregroundStyle(.white)
+                    Text("后续规划；普通 IPA 无法清理 iOS 系统级缓存。").font(.caption2).foregroundStyle(.white.opacity(0.52))
+                }
+                Spacer()
+                Text("规划中").font(.caption2.weight(.semibold)).foregroundStyle(.orange)
+            }
+            noteText("标称容量、续航和充电功率为规格参考，不代表当前电池健康状态或实时测量值。", tint: .cyan)
         }
         .padding(15).frame(maxWidth: .infinity, alignment: .leading).glassCard()
     }
