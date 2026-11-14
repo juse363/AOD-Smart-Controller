@@ -37,6 +37,12 @@ jobs:
       - name: Generate Xcode project
         run: xcodegen generate
 
+      - name: Read app version
+        id: app-version
+        run: |
+          VERSION=$(sed -n 's/.*MARKETING_VERSION: "\\([^"]*\\)".*/\\1/p' project.yml)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
       - name: Build unsigned app
         run: |
           xcodebuild \
@@ -49,13 +55,16 @@ jobs:
             build
 
       - name: Package IPA
+        env:
+          APP_VERSION: ${{ steps.app-version.outputs.version }}
         run: |
           mkdir -p Payload
           cp -R build/Build/Products/Release-iphoneos/NEXUS.app Payload/
-          zip -r NEXUS-0.4.4-unsigned.ipa Payload
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $APP_VERSION" Payload/NEXUS.app/Info.plist
+          zip -r "NEXUS-$APP_VERSION-unsigned.ipa" Payload
 
       - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
-          name: NEXUS-0.4.4-unsigned-IPA
-          path: NEXUS-0.4.4-unsigned.ipa
+          name: NEXUS-${{ steps.app-version.outputs.version }}-unsigned-IPA
+          path: NEXUS-${{ steps.app-version.outputs.version }}-unsigned.ipa
