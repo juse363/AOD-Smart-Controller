@@ -1,5 +1,7 @@
 # NEXUS · 灵枢工作台
 
+> License: GNU General Public License v3.0 only (GPL-3.0-only). See [LICENSE](LICENSE).
+
 **连接 · 智能 · 掌控未来**
 
 NEXUS is evolving from an AOD-focused prototype into a modular iPhone workspace for device diagnostics, sensor insights, system utilities, and future personalization tools.
@@ -48,3 +50,8 @@ The GitHub Actions workflow runs on a macOS runner and creates an **unsigned IPA
 5. Extract the ZIP and sign `NEXUS-unsigned.ipa` with your own Apple ID using iLoader before installing.
 
 The app keeps its existing bundle identifier, `com.aodsmart.controller`, to preserve continuity with earlier development builds. The app's displayed name and icon are now NEXUS.
+
+
+## License
+
+NEXUS is distributed under the GNU General Public License, version 3 only (SPDX: GPL-3.0-only), unless a file or component explicitly states otherwise. You may redistribute and modify covered source code under the terms of GPL-3.0. When distributing binaries, comply with the license requirements for providing the corresponding source and required notices. The full license text is in [LICENSE](LICENSE).
