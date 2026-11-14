@@ -504,7 +504,6 @@ struct ContentView: View {
         engine.previewLux = 20
         engine.darkThresholdLux = 10
         engine.recalculate()
-        ambientMotion = true
     }
 
     private var featureIntroHero: some View {
@@ -808,6 +807,10 @@ struct ContentView: View {
         .padding(15).frame(maxWidth: .infinity, alignment: .leading).glassCard()
     }
 
+    private var aodSensorDecision: AODSensorDecision {
+        AODSensorPolicy.evaluate(state: engine.state, researchEnabled: aodEnabled)
+    }
+
     private var sensorCard: some View {
         VStack(alignment: .leading, spacing: 13) {
             sectionIntro("传感器中心", detail: "设备状态与实时感知", symbol: "sensor")
@@ -818,6 +821,51 @@ struct ContentView: View {
             sensorStatusRow(title: "接近监测", value: proximity.status, symbol: "viewfinder", tint: .cyan)
             sensorStatusRow(title: "设备姿态", value: motion.description, symbol: "rotate.3d", tint: .purple)
             sensorStatusRow(title: "环境光", value: "尚未接入公开硬件数据源", symbol: "sun.max", tint: .yellow)
+
+            Divider().overlay(.white.opacity(0.10))
+            VStack(alignment: .leading, spacing: 5) {
+                HStack {
+                    Text("AOD 传感器联动")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.white)
+                    Spacer()
+                    Text(aodSensorDecision.title)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(aodSensorDecision.canRenderPreview ? .cyan : .orange)
+                }
+                Text(aodSensorDecision.detail)
+                    .font(.caption)
+                    .foregroundStyle(.white.opacity(0.58))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Divider().overlay(.white.opacity(0.10))
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Text("GestaltX AOD 能力映射")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.white)
+                    Spacer()
+                    Text("只读研究")
+                        .font(.caption2.weight(.medium))
+                        .foregroundStyle(.white.opacity(0.52))
+                }
+                ForEach(AODCapabilityProfile.entries) { entry in
+                    HStack(alignment: .firstTextBaseline, spacing: 8) {
+                        Text(entry.title)
+                            .font(.caption)
+                            .foregroundStyle(.white.opacity(0.82))
+                        Spacer(minLength: 4)
+                        Text("\(entry.mobileGestaltKeys.count) 个键")
+                            .font(.caption2.monospacedDigit())
+                            .foregroundStyle(.white.opacity(0.48))
+                    }
+                }
+                Text("已接入 GestaltX 的 AOD 键位清单；当前仅用于识别与策略研究，不会写入 MobileGestalt 或修改 SpringBoard。")
+                    .font(.caption2)
+                    .foregroundStyle(.white.opacity(0.48))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
         .padding(15).frame(maxWidth: .infinity, alignment: .leading).glassCard()
     }
