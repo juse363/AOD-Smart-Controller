@@ -17,6 +17,7 @@ struct AODSmartControllerApp: App {
                 .onAppear {
                     proximity.start()
                     motion.start()
+                    engine.update(proximityCovered: proximity.isCovered, faceDown: motion.isFaceDown)
                 }
                 .onChange(of: proximity.isCovered) { _, value in
                     engine.update(proximityCovered: value)
