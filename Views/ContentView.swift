@@ -34,36 +34,33 @@ struct ContentView: View {
     @State private var selectedWallpaperScene = 0
 
     var body: some View {
-        TabView(selection: $selectedTab) {
-            navigationPage(title: "功能介绍") {
-                featureIntroContent
-            }
-            .tabItem { Label("功能介绍", systemImage: "sparkles") }
-            .tag(DashboardTab.overview)
+        ZStack(alignment: .bottom) {
+            atmosphericBackground
 
-            navigationPage(title: "传感") {
-                sensorWorkspaceContent
+            Group {
+                switch selectedTab {
+                case .overview:
+                    navigationPage(title: "功能介绍") { featureIntroContent }
+                case .sensors:
+                    navigationPage(title: "传感") { sensorWorkspaceContent }
+                case .laboratory:
+                    navigationPage(title: "签名与权限") { appGroupCard }
+                case .system:
+                    navigationPage(title: "系统能力") { capabilityCard }
+                }
             }
-            .tabItem { Label("传感", systemImage: "sensor") }
-            .tag(DashboardTab.sensors)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            navigationPage(title: "签名与权限") {
-                appGroupCard
-            }
-            .tabItem { Label("签名与权限", systemImage: "checkmark.shield") }
-            .tag(DashboardTab.laboratory)
-
-            navigationPage(title: "系统能力") {
-                capabilityCard
-            }
-            .tabItem { Label("系统", systemImage: "gearshape") }
-            .tag(DashboardTab.system)
+            bottomNavigation
+                .padding(.bottom, 4)
+                .zIndex(2)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea(.container, edges: .all)
         .tint(.cyan)
-        .toolbarBackground(.visible, for: .tabBar)
-        .toolbarBackground(.ultraThinMaterial, for: .tabBar)
-        .background(atmosphericBackground)
         .preferredColorScheme(.dark)
+        .statusBarHidden(true)
+        .persistentSystemOverlays(.hidden)
         .onAppear {
             ambientMotion = true
         }
@@ -78,23 +75,22 @@ struct ContentView: View {
             VStack(spacing: 0) {
                 pageHeader(title: title)
 
-                GeometryReader { scrollProxy in
-                    ScrollView(showsIndicators: false) {
-                        content()
-                            .frame(maxWidth: .infinity, minHeight: scrollProxy.size.height, alignment: .topLeading)
-                            .padding(.horizontal, 16)
-                            .padding(.top, 12)
-                            .padding(.bottom, 34)
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .scrollBounceBehavior(.basedOnSize)
+                ScrollView(showsIndicators: false) {
+                    content()
+                        .frame(maxWidth: .infinity, alignment: .topLeading)
+                        .padding(.horizontal, 16)
+                        .padding(.top, 8)
+                        .padding(.bottom, 112)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .scrollBounceBehavior(.basedOnSize)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .background(atmosphericBackground.ignoresSafeArea())
             .toolbar(.hidden, for: .navigationBar)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea(.container, edges: .all)
     }
 
     private func pageHeader(title: String) -> some View {
@@ -132,10 +128,10 @@ struct ContentView: View {
             Spacer(minLength: 8)
 
             VStack(alignment: .trailing, spacing: 3) {
-                Text("0.4.6")
+                Text("0.4.7")
                     .font(.system(size: 11, weight: .bold, design: .rounded).monospaced())
                     .foregroundStyle(.white.opacity(0.9))
-                Text("BUILD 14")
+                Text("BUILD 15")
                     .font(.system(size: 8, weight: .semibold, design: .rounded).monospaced())
                     .tracking(0.5)
                     .foregroundStyle(.cyan.opacity(0.9))
@@ -795,8 +791,12 @@ struct ContentView: View {
         }
         .padding(.horizontal, 12)
         .padding(.top, 8)
-        .padding(.bottom, 5)
-        .background(.ultraThinMaterial)
+        .padding(.bottom, 14)
+        .background {
+            Rectangle()
+                .fill(.ultraThinMaterial)
+                .ignoresSafeArea(edges: .bottom)
+        }
         .overlay(alignment: .top) { Rectangle().fill(.white.opacity(0.08)).frame(height: 0.5) }
     }
 
